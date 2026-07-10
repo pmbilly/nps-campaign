@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{PROJECT_NAME}} — 需求评审</title>
+  <!--
+    SPEC REVIEW TEMPLATE v4.0
+    章节顺序:
+      1) 产品概述
+      2) 业务流程        含端到端流转胶囊条 + Tab 切换（顶部）
+      3) 功能架构
+      4) 模块详情        左右联动
+      5) 原型预览        筛选 + lightbox
+      6) 角色与权限      左侧 Tab
+      7) 全局规范        左侧 Tab
+      8) 方案设计        左侧 Tab：技术架构/数据模型/部署/决策/错误码
+      9) Spec Coding 指引
+     10) AI 评审摘要
+     11) 开放问题
+  -->
+  <style>
+    :root {
+      --bg:#fff; --bg-soft:#f8fafc; --bg-muted:#f1f5f9;
+      --fg:#0f172a; --fg-muted:#64748b; --fg-soft:#94a3b8;
+      --border:#e2e8f0; --border-soft:#f1f5f9;
+      --primary:#1d4ed8; --primary-soft:#eff6ff;
+      --radius:0.5rem; --radius-lg:0.75rem;
+      --shadow-xs:0 1px 2px 0 rgba(15,23,42,.04);
+      --shadow-sm:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+      --shadow-md:0 6px 16px rgba(15,23,42,.08),0 2px 4px rgba(15,23,42,.04);
+    }
+    .clr-blue   { --c-bg:#eff6ff; --c-border:#dbeafe; --c-fg:#1e40af; --c-strong:#1d4ed8; }
+    .clr-green  { --c-bg:#ecfdf5; --c-border:#d1fae5; --c-fg:#047857; --c-strong:#059669; }
+    .clr-purple { --c-bg:#faf5ff; --c-border:#f3e8ff; --c-fg:#7e22ce; --c-strong:#9333ea; }
+    .clr-orange { --c-bg:#fff7ed; --c-border:#ffedd5; --c-fg:#c2410c; --c-strong:#ea580c; }
+    .clr-red    { --c-bg:#fef2f2; --c-border:#fee2e2; --c-fg:#b91c1c; --c-strong:#dc2626; }
+    .clr-amber  { --c-bg:#fffbeb; --c-border:#fef3c7; --c-fg:#b45309; --c-strong:#d97706; }
+    .clr-indigo { --c-bg:#eef2ff; --c-border:#e0e7ff; --c-fg:#4338ca; --c-strong:#4f46e5; }
+    .clr-teal   { --c-bg:#f0fdfa; --c-border:#ccfbf1; --c-fg:#0f766e; --c-strong:#0d9488; }
+    .clr-rose   { --c-bg:#fff1f2; --c-border:#ffe4e6; --c-fg:#be123c; --c-strong:#e11d48; }
+    .clr-slate  { --c-bg:#f8fafc; --c-border:#e2e8f0; --c-fg:#475569; --c-strong:#334155; }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px; line-height: 1.65;
+      color: var(--fg); background: white;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1,h2,h3,h4 { margin: 0; line-height: 1.3; letter-spacing: -0.015em; font-weight: 600; }
+    p { margin: 0; }
+    code {
+      padding: 0.125rem 0.4rem; background: var(--bg-muted);
+      border-radius: 0.25rem; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.85em; color: var(--fg);
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ===== Nav ===== */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+    .nav-brand { display: flex; align-items: center; gap: 0.625rem; font-weight: 600; font-size: 0.95rem; }
+    .nav-brand-icon { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; background: linear-gradient(135deg,#1d4ed8 0%,#4f46e5 100%); color: white; display: grid; place-items: center; font-size: 0.85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 0.125rem; flex-wrap: wrap; margin-left: auto; }
+    .nav-links a { padding: 0.4rem 0.625rem; border-radius: 0.375rem; color: var(--fg-muted); font-size: 0.825rem; font-weight: 500; transition: all 0.12s; }
+    .nav-links a:hover { background: var(--bg-muted); color: var(--fg); text-decoration: none; }
+    .nav-links a.active { background: var(--fg); color: white; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 4rem 0 1rem; scroll-margin-top: 4.5rem; position: relative; }
+    /* Alternating section background — odd: white, even: soft */
+    section.section-alt { background: var(--bg-soft); }
+    section.section-alt::before, section.section-alt::after {
+      content: ''; position: absolute; left: calc(50% - 50vw); right: calc(50% - 50vw);
+      width: 100vw; background: var(--bg-soft); top: 0; bottom: 0; z-index: -1;
+    }
+
+    /* ===== Hero ===== */
+    .hero { position: relative; padding: 4.5rem 0 3.5rem; background: linear-gradient(180deg,#fff 0%,var(--bg-soft) 100%); border-bottom: 1px solid var(--border); overflow: hidden; }
+    .hero::before { content:''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle at 15% 20%, rgba(59,130,246,.08), transparent 40%), radial-gradient(circle at 85% 80%, rgba(168,85,247,.08), transparent 40%); }
+    .hero .container { position: relative; }
+    .hero-meta { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-radius: 9999px; background: white; border: 1px solid var(--border); font-size: 0.8rem; color: var(--fg-muted); margin-bottom: 1.25rem; box-shadow: var(--shadow-xs); }
+    .pulse { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,.18); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 4px rgba(16,185,129,.18);} 50%{box-shadow:0 0 0 6px rgba(16,185,129,.25);} }
+    .hero h1 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 700; letter-spacing: -0.025em; margin-bottom: 1rem; }
+    .hero h1 .accent { background: linear-gradient(135deg,#1d4ed8 0%,#7e22ce 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p.lead { font-size: 1.075rem; color: var(--fg-muted); max-width: 44rem; margin-bottom: 1.75rem; }
+    .hero-cta { display: flex; gap: 0.625rem; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.125rem; background: var(--fg); color: white; border-radius: var(--radius); font-weight: 500; font-size: 0.875rem; border: none; cursor: pointer; transition: opacity 0.15s, transform 0.05s; box-shadow: var(--shadow-sm); }
+    .btn:hover { opacity: 0.92; text-decoration: none; }
+    .btn:active { transform: translateY(1px); }
+    .btn-ghost { background: white; color: var(--fg); border: 1px solid var(--border); }
+
+    .hero-stats { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(4,1fr); gap: 0.875rem; }
+    .hero-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem 1.25rem; box-shadow: var(--shadow-xs); position: relative; overflow: hidden; }
+    .hero-stat::after { content:''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--c-strong, var(--primary)); }
+    .hero-stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; color: var(--fg); letter-spacing: -0.02em; }
+    .hero-stat-label { font-size: 0.78rem; color: var(--fg-muted); margin-top: 0.5rem; font-weight: 500; }
+    .hero-stat-sub { font-size: 0.7rem; color: var(--fg-soft); margin-top: 0.25rem; }
+    @media (max-width: 768px) { .hero-stats { grid-template-columns: repeat(2,1fr); } .nav-links { display: none; } }
+
+    /* ===== Section ===== */
+    .section-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .section-eyebrow { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .section-eyebrow-dot { width: 0.375rem; height: 0.375rem; border-radius: 9999px; }
+    .section-title { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .section-subtitle { color: var(--fg-muted); font-size: 0.95rem; max-width: 56rem; }
+    .section-side-meta { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-radius: 9999px; background: white; border: 1px solid var(--border); font-size: 0.8rem; color: var(--fg-muted); box-shadow: var(--shadow-xs); }
+
+    /* ===== Cards ===== */
+    .card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-xs); }
+    .card-hover { transition: all 0.18s; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-border, var(--border)); }
+    .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.875rem; }
+    .card-icon { width: 2.25rem; height: 2.25rem; border-radius: var(--radius); display: grid; place-items: center; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); flex-shrink: 0; }
+    .card-title { font-size: 1rem; font-weight: 600; }
+    .card-desc { color: var(--fg-muted); font-size: 0.9rem; line-height: 1.6; }
+
+    .grid { display: grid; gap: 1rem; }
+    .grid-2 { grid-template-columns: repeat(2,1fr); }
+    .grid-3 { grid-template-columns: repeat(3,1fr); }
+    .grid-4 { grid-template-columns: repeat(4,1fr); }
+    @media (max-width: 1024px) { .grid-3, .grid-4 { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } }
+
+    .tag { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--c-fg); font-size: 0.72rem; font-weight: 500; }
+    .badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 500; background: var(--c-bg); color: var(--c-fg); border: 1px solid var(--c-border); }
+    .badge-success { --c-bg:#d1fae5; --c-fg:#065f46; --c-border:#a7f3d0; }
+    .badge-warning { --c-bg:#fef3c7; --c-fg:#92400e; --c-border:#fde68a; }
+    .badge-danger { --c-bg:#fee2e2; --c-fg:#991b1b; --c-border:#fecaca; }
+    .badge-info { --c-bg:#dbeafe; --c-fg:#1e40af; --c-border:#bfdbfe; }
+    .badge-neutral { --c-bg: var(--bg-muted); --c-fg: var(--fg-muted); --c-border: var(--border); }
+
+    .table-wrap { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: white; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead { background: var(--bg-soft); }
+    th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.74rem; color: var(--fg-muted); letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-soft); }
+
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.625rem 0; font-size: 0.9rem; border-bottom: 1px solid var(--border-soft); }
+    .checklist li:last-child { border-bottom: none; }
+    .check-icon { flex-shrink: 0; width: 1.25rem; height: 1.25rem; border-radius: 9999px; display: grid; place-items: center; margin-top: 0.0625rem; font-size: 0.7rem; font-weight: 700; }
+    .check-icon.success { background: #d1fae5; color: #047857; }
+    .check-icon.warning { background: #fef3c7; color: #b45309; }
+    .check-icon.info { background: #dbeafe; color: #1e40af; }
+
+    /* ===== Pill tabs (used for §2 flows top — unified with .arch-sub / .proto-filter) ===== */
+    .tabs-top { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .tabs-top .tab-btn { padding: 0.5rem 1rem; border-radius: var(--radius); background: white; border: 1px solid var(--border); color: var(--fg-muted); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.12s; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .tabs-top .tab-btn:hover { color: var(--fg); }
+    .tabs-top .tab-btn.active { background: var(--fg); color: white; border-color: var(--fg); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ===== Side-tabs (used for §6/7/8/9) — same DOM as modsplit ===== */
+    .splitview { display: grid; grid-template-columns: 16rem 1fr; gap: 1.25rem; align-items: stretch; }
+    @media (max-width: 880px) { .splitview { grid-template-columns: 1fr; } .splitview-list { max-height: 18rem; overflow-y: auto; position: static !important; } }
+    .splitview-list { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 0.5rem; box-shadow: var(--shadow-xs); align-self: start; position: sticky; top: 5rem; }
+    .splitview-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.625rem 0.75rem; border-radius: var(--radius); cursor: pointer; transition: all 0.12s; user-select: none; border: 1px solid transparent; }
+    .splitview-item:hover { background: var(--bg-soft); }
+    .splitview-item.active { background: var(--c-bg, var(--primary-soft)); border-color: var(--c-border, var(--primary-soft)); }
+    .splitview-item .sv-id { width: 2.25rem; padding: 0.125rem 0.375rem; background: var(--bg-muted); color: var(--fg-muted); border-radius: 0.25rem; font-size: 0.72rem; font-weight: 700; text-align: center; flex-shrink: 0; }
+    .splitview-item.active .sv-id { background: var(--c-strong); color: white; }
+    .splitview-item .sv-name { font-size: 0.875rem; font-weight: 500; color: var(--fg); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .splitview-item .sv-icon { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+    .splitview-detail { min-height: 22rem; }
+    .sv-pane { display: none; }
+    .sv-pane.active { display: block; }
+
+    /* ===== Module head + blocks (reused for module + design panes) ===== */
+    .modhead { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-xs); }
+    .modhead-meta { display: flex; gap: 0.375rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.5rem; }
+    .modhead-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .modhead-desc { color: var(--fg-muted); font-size: 0.925rem; }
+    .modgrid { display: grid; gap: 1rem; }
+    @media (min-width: 720px) { .modgrid.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .modblock { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
+    .modblock h4 { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.375rem; }
+    .modblock ul { list-style: none; padding: 0; margin: 0; font-size: 0.875rem; color: var(--fg); }
+    .modblock ul li { padding: 0.3125rem 0; line-height: 1.55; }
+    .modblock ul li::before { content: '·'; color: var(--c-strong, var(--primary)); margin-right: 0.5rem; font-weight: 700; }
+    .modblock .br-list li { display: flex; gap: 0.625rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-soft); }
+    .modblock .br-list li:last-child { border-bottom: none; }
+    .modblock .br-list li::before { display: none; }
+    .modblock .br-code { background: var(--bg-muted); color: var(--fg-muted); padding: 0.0625rem 0.4rem; border-radius: 0.25rem; font-family: ui-monospace, monospace; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; margin-top: 0.0625rem; }
+    .modlink { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.75rem; background: var(--c-bg, var(--primary-soft)); border: 1px solid var(--c-border, var(--primary-soft)); color: var(--c-strong, var(--primary)); border-radius: var(--radius); font-size: 0.825rem; font-weight: 500; cursor: pointer; }
+    .modlink:hover { text-decoration: none; opacity: 0.9; }
+
+    /* ===== Function tree (Architecture) ===== */
+    .fntree { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+    .fntree-row { display: grid; gap: 1rem; }
+    @media (min-width: 800px) { .fntree-row.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .fntree-layer { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+    .fntree-layer-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem; padding-bottom: 0.625rem; border-bottom: 1px dashed var(--border); }
+    .fntree-layer-icon { width: 1.75rem; height: 1.75rem; border-radius: var(--radius); display: grid; place-items: center; background: var(--c-bg); color: var(--c-strong); font-size: 0.875rem; }
+    .fntree-layer-title { font-size: 0.95rem; font-weight: 600; color: var(--fg); }
+    .fntree-layer-sub { font-size: 0.78rem; color: var(--fg-muted); margin-top: 0.0625rem; }
+    .fntree-modules { display: grid; gap: 0.5rem; }
+    .fntree-mod { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: var(--radius); background: var(--c-bg); color: var(--c-fg); border: 1px solid var(--c-border); font-size: 0.85rem; font-weight: 500; }
+    .fntree-mod-id { width: 2.5rem; padding: 0.125rem 0.375rem; background: white; color: var(--c-strong); border-radius: 0.25rem; font-size: 0.7rem; font-weight: 700; text-align: center; flex-shrink: 0; border: 1px solid var(--c-border); }
+
+    /* ===== Mermaid + image cards ===== */
+    .mermaid-wrap { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; overflow-x: auto; box-shadow: var(--shadow-xs); }
+    .mermaid-wrap pre { margin: 0; text-align: center; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+    .flowimg { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; box-shadow: var(--shadow-xs); text-align: center; }
+    .flowimg img { max-width: 100%; border-radius: var(--radius); cursor: zoom-in; margin: 0 auto; }
+    .flowimg-caption { color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.75rem; }
+
+    /* ===== Process strip (核心流程胶囊条 — 紧凑版，可滚动) ===== */
+    .process-strip {
+      background: linear-gradient(180deg, white 0%, var(--bg-soft) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-xs);
+      overflow-x: auto;
+    }
+    .process-strip-title {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.74rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--fg-muted); margin-bottom: 1.125rem;
+    }
+    .process-strip-title::before {
+      content: ''; width: 0.375rem; height: 0.375rem; border-radius: 9999px;
+      background: var(--primary);
+    }
+    .process-strip-flow {
+      display: flex; align-items: flex-start; gap: 0;
+      min-width: max-content; padding-top: 0.25rem;
+    }
+    .process-step {
+      flex: 0 0 7.5rem;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      background: transparent; border: none; padding: 0 0.5rem;
+      position: relative;
+    }
+    /* Connecting line between number badges */
+    .process-step::after {
+      content: '';
+      position: absolute;
+      top: 0.875rem;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .process-step:last-child::after { display: none; }
+    .process-step-num {
+      position: relative; z-index: 1;
+      width: 1.75rem; height: 1.75rem;
+      background: white; color: var(--fg);
+      border: 2px solid var(--border);
+      border-radius: 9999px;
+      display: grid; place-items: center;
+      font-size: 0.75rem; font-weight: 700;
+      margin-bottom: 0.625rem;
+      transition: all 0.15s;
+    }
+    .process-step:hover .process-step-num {
+      background: var(--fg); color: white; border-color: var(--fg);
+      transform: scale(1.08);
+    }
+    .process-step-name {
+      font-size: 0.825rem; font-weight: 600; color: var(--fg);
+      line-height: 1.3; margin-bottom: 0.125rem;
+    }
+    .process-step-actor {
+      font-size: 0.7rem; color: var(--fg-muted);
+      line-height: 1.3;
+    }
+    /* Legacy text arrows are hidden — line replaces them */
+    .process-arrow { display: none; }
+
+    /* ===== Decision card ===== */
+    .decision-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.375rem; transition: all 0.18s; }
+    .decision-card:hover { border-color: var(--c-border, var(--primary-soft)); box-shadow: var(--shadow-md); }
+    .decision-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.625rem; }
+    .decision-num { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+    .decision-title { font-size: 0.95rem; font-weight: 600; }
+    .decision-choice { display: inline-flex; padding: 0.25rem 0.625rem; background: var(--c-bg, var(--bg-muted)); color: var(--c-strong, var(--fg)); border: 1px solid var(--c-border, var(--border)); border-radius: 0.375rem; font-size: 0.825rem; font-weight: 600; margin: 0.5rem 0; }
+    .decision-reason { font-size: 0.875rem; color: var(--fg-muted); line-height: 1.55; }
+
+    /* ===== OQ ===== */
+    .oq-card { background: white; border: 1px solid var(--border); border-left: 3px solid #f59e0b; border-radius: var(--radius-lg); padding: 1.125rem 1.375rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-xs); }
+    .oq-id { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #b45309; letter-spacing: 0.05em; background: #fef3c7; padding: 0.125rem 0.5rem; border-radius: 0.25rem; margin-bottom: 0.5rem; }
+    .oq-q { font-weight: 600; color: var(--fg); margin-bottom: 0.5rem; }
+    .oq-default { font-size: 0.875rem; color: var(--fg-muted); }
+    .oq-default strong { color: #b45309; }
+
+    /* ===== Prototype ===== */
+    .proto-filter { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .proto-filter-btn { padding: 0.375rem 0.75rem; border-radius: 9999px; background: white; border: 1px solid var(--border); color: var(--fg-muted); font-size: 0.825rem; font-weight: 500; cursor: pointer; transition: all 0.12s; }
+    .proto-filter-btn:hover { color: var(--fg); }
+    .proto-filter-btn.active { background: var(--fg); color: white; border-color: var(--fg); }
+    .proto-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
+    .proto-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: zoom-in; transition: all 0.18s; }
+    .proto-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .proto-card-img { aspect-ratio: 4/3; background: var(--bg-muted); overflow: hidden; display: grid; place-items: center; }
+    .proto-card-img img { width: 100%; height: 100%; object-fit: contain; }
+    .proto-card-meta { padding: 0.625rem 0.875rem; }
+    .proto-card-name { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.125rem; }
+    .proto-card-mod { font-size: 0.74rem; color: var(--fg-muted); }
+
+    /* ===== Lightbox ===== */
+    .lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(15,23,42,.92); display: none; align-items: center; justify-content: center; padding: 2rem; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; border-radius: var(--radius); cursor: zoom-out; }
+    .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; width: 2.5rem; height: 2.5rem; border-radius: 9999px; background: rgba(255,255,255,.15); color: white; display: grid; place-items: center; border: none; cursor: pointer; font-size: 1.5rem; font-weight: 300; }
+    .lightbox-cap { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: white; font-size: 0.9rem; opacity: 0.8; }
+
+    /* ===== Feature tags (key features cloud) ===== */
+    .feature-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+    .feature-tag { padding: 0.375rem 0.75rem; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); border: 1px solid var(--c-border, var(--primary-soft)); border-radius: 9999px; font-size: 0.825rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; }
+
+    /* ===== Journey step cards (业务流程详细 10 步) ===== */
+    .journey { display: grid; gap: 0.75rem; }
+    .journey-step { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; align-items: start; padding: 1rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); transition: all 0.18s; }
+    .journey-step:hover { border-color: var(--c-border, var(--primary-soft)); box-shadow: var(--shadow-md); }
+    .journey-num { width: 2.5rem; height: 2.5rem; border-radius: 9999px; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); display: grid; place-items: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .journey-content { flex: 1; }
+    .journey-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.375rem; }
+    .journey-title { font-size: 1rem; font-weight: 600; color: var(--fg); }
+    .journey-meta { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+    .journey-actor { padding: 0.125rem 0.5rem; background: var(--bg-muted); color: var(--fg-muted); border-radius: 0.25rem; font-size: 0.72rem; font-weight: 500; }
+    .journey-mod { padding: 0.125rem 0.5rem; background: var(--c-bg); color: var(--c-strong); border: 1px solid var(--c-border); border-radius: 0.25rem; font-size: 0.72rem; font-weight: 600; }
+    .journey-desc { font-size: 0.875rem; color: var(--fg-muted); line-height: 1.55; }
+
+    /* ===== Mini module cards (评审摘要速查) ===== */
+    .mini-mod-grid { display: grid; gap: 0.625rem; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
+    .mini-mod { padding: 0.625rem 0.875rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); border-left: 3px solid var(--c-strong, var(--primary)); transition: all 0.15s; }
+    .mini-mod:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .mini-mod-id { font-size: 0.7rem; color: var(--c-strong); font-weight: 700; letter-spacing: 0.05em; }
+    .mini-mod-name { font-size: 0.875rem; font-weight: 600; color: var(--fg); margin-top: 0.125rem; }
+    .mini-mod-meta { display: flex; gap: 0.25rem; margin-top: 0.375rem; }
+    .mini-mod-meta .badge { font-size: 0.66rem; padding: 0.0625rem 0.375rem; }
+
+    /* ===== Proto stats (原型分类统计) ===== */
+    .proto-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.5rem; }
+    .proto-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.875rem 1rem; text-align: center; border-top: 3px solid var(--c-strong); }
+    .proto-stat-value { font-size: 1.5rem; font-weight: 700; color: var(--fg); line-height: 1; }
+    .proto-stat-label { font-size: 0.78rem; color: var(--fg-muted); margin-top: 0.375rem; }
+    @media (max-width: 768px) { .proto-stats { grid-template-columns: repeat(2, 1fr); } }
+
+    .arch-sub { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .arch-sub-btn { padding: 0.5rem 1rem; border-radius: var(--radius); background: white; border: 1px solid var(--border); color: var(--fg-muted); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.12s; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .arch-sub-btn:hover { color: var(--fg); }
+    .arch-sub-btn.active { background: var(--fg); color: white; border-color: var(--fg); }
+    .arch-pane { display: none; }
+    .arch-pane.active { display: block; }
+    .arch-layer-card { display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; }
+    .arch-layer-tag { width: 7rem; padding: 0.25rem 0.5rem; background: var(--c-bg); color: var(--c-strong); border: 1px solid var(--c-border); border-radius: 0.25rem; font-size: 0.78rem; font-weight: 600; text-align: center; flex-shrink: 0; }
+    .arch-layer-content { flex: 1; font-size: 0.875rem; color: var(--fg); }
+
+    /* ===== Hero TL;DR cards ===== */
+    .hero-tldr { margin-top: 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.875rem; }
+    .hero-tldr-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; box-shadow: var(--shadow-xs); }
+    .hero-tldr-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem; }
+    .hero-tldr-icon { width: 1.5rem; height: 1.5rem; border-radius: 0.375rem; background: var(--c-bg); color: var(--c-strong); display: grid; place-items: center; }
+    .hero-tldr-label { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); }
+    .hero-tldr-content { font-size: 0.85rem; color: var(--fg); line-height: 1.55; }
+    .hero-tldr-content strong { color: var(--c-strong); }
+    @media (max-width: 768px) { .hero-tldr { grid-template-columns: repeat(2, 1fr); } }
+
+    /* ===== Entity card (data model — shadcn style) ===== */
+    .entity-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-xs); transition: all 0.18s; }
+    .entity-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-border); }
+    .entity-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .entity-name-block { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+    .entity-name { font-size: 1rem; font-weight: 700; color: var(--fg); font-family: ui-monospace, monospace; }
+    .entity-name-cn { font-size: 0.85rem; color: var(--fg-muted); }
+    .entity-rel { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .entity-rel-tag { padding: 0.125rem 0.5rem; background: var(--c-bg); color: var(--c-strong); border: 1px solid var(--c-border); border-radius: 0.375rem; font-size: 0.7rem; font-weight: 500; }
+    .entity-card-meta { font-size: 0.78rem; color: var(--fg-muted); margin-bottom: 0.75rem; padding-bottom: 0.625rem; border-bottom: 1px dashed var(--border); }
+    .entity-fields { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+    .entity-fields td { padding: 0.3rem 0.625rem 0.3rem 0; vertical-align: top; border-bottom: none; }
+    .entity-fields td:first-child { padding-left: 0; }
+    .ef-name { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--fg); font-weight: 500; white-space: nowrap; }
+    .ef-type { font-family: ui-monospace, monospace; color: #1d4ed8; white-space: nowrap; }
+    .ef-desc { color: var(--fg-muted); width: 100%; }
+
+    /* ===== Collapsible BR list ===== */
+    .br-list-wrap .hidden { display: none !important; }
+    .br-expand-btn { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 0.5rem; padding: 0.375rem 0.75rem; background: var(--bg-muted); border: 1px solid var(--border); color: var(--fg-muted); border-radius: var(--radius); font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.12s; }
+    .br-expand-btn:hover { background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); border-color: var(--c-border, var(--primary-soft)); }
+
+    /* ===== AC list ===== */
+    .ac-list { list-style: none; padding: 0; margin: 0; }
+    .ac-list li { display: flex; gap: 0.625rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-soft); }
+    .ac-list li:last-child { border-bottom: none; }
+    .ac-list li::before { display: none; }
+    .ac-code { background: #d1fae5; color: #047857; padding: 0.0625rem 0.4rem; border-radius: 0.25rem; font-family: ui-monospace, monospace; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; margin-top: 0.0625rem; }
+    .ac-list strong { color: #047857; font-weight: 600; }
+
+    /* ===== Decision timetable ===== */
+    .timetable { margin-top: 1.25rem; }
+    .timetable-row { display: grid; grid-template-columns: 7rem 1fr 8rem 6rem; gap: 1rem; align-items: center; padding: 0.75rem 1rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; }
+    .timetable-date { font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 600; color: #b45309; }
+    .timetable-task { font-size: 0.875rem; color: var(--fg); }
+    .timetable-owner { font-size: 0.825rem; color: var(--fg-muted); }
+    @media (max-width: 768px) { .timetable-row { grid-template-columns: 1fr; gap: 0.25rem; } }
+
+    .skill-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem; transition: all 0.18s; }
+    .skill-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-border, var(--border)); }
+    .skill-card-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.5rem; }
+    .skill-card-icon { width: 1.75rem; height: 1.75rem; border-radius: 0.375rem; background: var(--c-bg); color: var(--c-strong); display: grid; place-items: center; flex-shrink: 0; font-size: 0.85rem; }
+    .skill-card-name { font-family: ui-monospace, monospace; font-size: 0.875rem; font-weight: 600; }
+    .skill-card-desc { font-size: 0.825rem; color: var(--fg-muted); margin-bottom: 0.625rem; line-height: 1.5; }
+    .skill-card-trigger { padding: 0.375rem 0.625rem; background: var(--bg-muted); border-radius: 0.375rem; font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--fg); }
+
+    .step-card { display: flex; gap: 1rem; padding: 1rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 0.75rem; }
+    .step-card-num { width: 2rem; height: 2rem; border-radius: 9999px; background: var(--c-bg); color: var(--c-strong); display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
+    .step-card-content { flex: 1; }
+    .step-card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .step-card-desc { font-size: 0.85rem; color: var(--fg-muted); line-height: 1.55; }
+
+    footer { margin-top: 5rem; padding: 3rem 0; background: white; border-top: 1px solid var(--border); text-align: center; }
+    footer .footer-brand { font-weight: 600; color: var(--fg); margin-bottom: 0.5rem; }
+    footer .footer-meta { color: var(--fg-soft); font-size: 0.825rem; }
+    footer .footer-meta a { color: var(--fg-muted); }
+
+    /* Section accent colors */
+    #overview     .section-eyebrow { color: #1d4ed8; } #overview     .section-eyebrow-dot { background: #1d4ed8; }
+    #flows        .section-eyebrow { color: #0891b2; } #flows        .section-eyebrow-dot { background: #0891b2; }
+    #architecture .section-eyebrow { color: #7e22ce; } #architecture .section-eyebrow-dot { background: #7e22ce; }
+    #modules      .section-eyebrow { color: #ea580c; } #modules      .section-eyebrow-dot { background: #ea580c; }
+    #prototypes   .section-eyebrow { color: #d97706; } #prototypes   .section-eyebrow-dot { background: #d97706; }
+    #roles        .section-eyebrow { color: #4f46e5; } #roles        .section-eyebrow-dot { background: #4f46e5; }
+    #rules        .section-eyebrow { color: #db2777; } #rules        .section-eyebrow-dot { background: #db2777; }
+    #design       .section-eyebrow { color: #0d9488; } #design       .section-eyebrow-dot { background: #0d9488; }
+    #ai-guide     .section-eyebrow { color: #4338ca; } #ai-guide     .section-eyebrow-dot { background: #4338ca; }
+    #aisummary    .section-eyebrow { color: #16a34a; } #aisummary    .section-eyebrow-dot { background: #16a34a; }
+    #oq           .section-eyebrow { color: #f59e0b; } #oq           .section-eyebrow-dot { background: #f59e0b; }
+
+    svg { display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="nav-brand">
+      <span class="nav-brand-icon">{{PROJECT_INITIAL}}</span>
+      <span>{{PROJECT_NAME}} · 评审</span>
+    </span>
+    <div class="nav-links">
+      <a href="#overview">概述</a>
+      <a href="#flows">流程</a>
+      <a href="#architecture">架构</a>
+      <a href="#modules">模块</a>
+      <a href="#prototypes">原型</a>
+      <a href="#roles">权限</a>
+      <a href="#rules">规范</a>
+      <a href="#design">方案</a>
+      <a href="#ai-guide">AI 开发</a>
+      <a href="#aisummary">评审决策</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <span class="hero-meta">
+      <span class="pulse"></span>
+      {{PROJECT_STATUS}} · 文档版本 {{DOC_VERSION}} · {{REVIEW_DATE}}
+    </span>
+    <h1>{{PROJECT_NAME}}<br/><span class="accent">{{PROJECT_TAGLINE}}</span></h1>
+    <p class="lead">{{PROJECT_DESC}}</p>
+    <div class="hero-cta">
+      <a class="btn" href="#overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        开始评审
+      </a>
+      <a class="btn btn-ghost" href="{{REPO_URL}}" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.06c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.27-1.69-1.27-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.27-5.23-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.19-1.48 3.15-1.17 3.15-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.4-2.68 5.37-5.24 5.65.41.36.77 1.06.77 2.13v3.16c0 .31.21.67.8.56 4.56-1.52 7.85-5.83 7.85-10.91C23.5 5.65 18.35.5 12 .5z"/></svg>
+        查看仓库
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <!-- REPEAT:hero_stat -->
+      <div class="hero-stat clr-{{HS_COLOR}}">
+        <div class="hero-stat-value">{{HS_VALUE}}</div>
+        <div class="hero-stat-label">{{HS_LABEL}}</div>
+        <div class="hero-stat-sub">{{HS_SUB}}</div>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+
+    <!-- OPTIONAL:tldr_panel -->
+    <!-- TL;DR 决策面板（仅当所有信息明确时启用） -->
+    <div class="hero-tldr">
+      <!-- REPEAT:tldr_card -->
+      <div class="hero-tldr-card clr-{{TC_COLOR}}">
+        <div class="hero-tldr-head">
+          <div class="hero-tldr-icon">{{TC_ICON}}</div>
+          <div class="hero-tldr-label">{{TC_LABEL}}</div>
+        </div>
+        <div class="hero-tldr-content">{{TC_CONTENT}}</div>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+    <!-- /OPTIONAL -->
+  </div>
+</header>
+
+<div class="container">
+
+
+<!-- ============================================================ -->
+<!-- §1 OVERVIEW                                                   -->
+<!-- ============================================================ -->
+<section id="overview">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §1 Overview</div>
+      <h2 class="section-title">产品概述</h2>
+      <p class="section-subtitle">{{OVERVIEW_SUBTITLE}}</p>
+    </div>
+    <span class="section-side-meta">{{OVERVIEW_META}}</span>
+  </div>
+  <div class="grid grid-2">
+    <div class="card clr-red">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+        <h3 class="card-title">核心问题</h3>
+      </div>
+      <div class="card-desc">{{CORE_PROBLEM}}</div>
+    </div>
+    <div class="card clr-green">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l5 5L20 7"/></svg></div>
+        <h3 class="card-title">核心目标</h3>
+      </div>
+      <div class="card-desc">{{CORE_GOAL}}</div>
+    </div>
+  </div>
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">目标用户</h3>
+  <div class="grid grid-3">
+    <!-- REPEAT:user_role -->
+    <div class="card card-hover clr-{{ROLE_COLOR}}">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/></svg></div>
+        <h3 class="card-title">{{ROLE_NAME}}</h3>
+      </div>
+      <div class="card-desc">{{ROLE_DESC}}</div>
+    </div>
+    <!-- /REPEAT -->
+  </div>
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">术语表</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th style="width:10rem;">术语</th><th style="width:11rem;">英文</th><th>定义</th><th style="width:14rem;">备注</th></tr></thead>
+      <tbody>
+        <!-- REPEAT:term -->
+        <tr>
+          <td><strong>{{TERM_CN}}</strong></td>
+          <td><code>{{TERM_EN}}</code></td>
+          <td style="color:var(--fg);">{{TERM_DEF}}</td>
+          <td style="color:var(--fg-muted);font-size:0.825rem;">{{TERM_NOTE}}</td>
+        </tr>
+        <!-- /REPEAT -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §2 FLOWS — 业务流程（顶部 Tab + 流转胶囊条）                    -->
+<!-- ============================================================ -->
+<section id="flows" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §2 Business Flows</div>
+      <h2 class="section-title">业务流程</h2>
+      <p class="section-subtitle">端到端流转与关键业务流程</p>
+    </div>
+  </div>
+
+  <!-- 端到端流转胶囊条 -->
+  <div class="process-strip">
+    <div class="process-strip-title">核心业务流转</div>
+    <div class="process-strip-flow">
+      <!-- REPEAT:process_step -->
+      <div class="process-step">
+        <div class="process-step-num">{{PS_NUM}}</div>
+        <div class="process-step-name">{{PS_NAME}}</div>
+        <div class="process-step-actor">{{PS_ACTOR}}</div>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+  </div>
+
+  <div class="tabs-top" data-tabs="flows">
+    <!-- REPEAT:flow_tab -->
+    <button class="tab-btn {{FT_ACTIVE}}" data-tab="flow-{{FT_ID}}">{{FT_NAME}}</button>
+    <!-- /REPEAT -->
+  </div>
+
+  <!-- REPEAT:flow_pane -->
+  <div class="tab-pane {{FP_ACTIVE}}" id="flow-{{FP_ID}}">
+    <!-- OPTIONAL:flow_image -->
+    <div class="flowimg">
+      <img src="{{FP_IMAGE_SRC}}" alt="{{FP_NAME}}" data-zoomable data-cap="{{FP_NAME}}" />
+      <div class="flowimg-caption">{{FP_NAME}} · 点击查看大图</div>
+    </div>
+    <!-- /OPTIONAL -->
+    <!-- OPTIONAL:flow_mermaid -->
+    <div class="mermaid-wrap">
+      <pre class="mermaid">
+{{FP_MERMAID}}
+      </pre>
+    </div>
+    <!-- /OPTIONAL -->
+  </div>
+  <!-- /REPEAT -->
+</section>
+
+<!-- ============================================================ -->
+<!-- §3 ARCHITECTURE — 功能架构                                     -->
+<!-- ============================================================ -->
+<section id="architecture">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §3 Functional Architecture</div>
+      <h2 class="section-title">功能架构</h2>
+      <p class="section-subtitle">{{ARCH_SUBTITLE}}</p>
+    </div>
+  </div>
+  <div class="fntree">
+    <div class="fntree-row cols-2">
+      <!-- REPEAT:arch_layer -->
+      <div class="fntree-layer clr-{{LAYER_COLOR}}">
+        <div class="fntree-layer-head">
+          <span class="fntree-layer-icon">{{LAYER_ICON}}</span>
+          <div>
+            <div class="fntree-layer-title">{{LAYER_NAME}}</div>
+            <div class="fntree-layer-sub">{{LAYER_SUB}}</div>
+          </div>
+        </div>
+        <div class="fntree-modules">
+          <!-- REPEAT:arch_module -->
+          <div class="fntree-mod">
+            <span class="fntree-mod-id">{{AM_ID}}</span>
+            <span>{{AM_NAME}}</span>
+          </div>
+          <!-- /REPEAT -->
+        </div>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §4 MODULES — 模块详情（左右联动）                                -->
+<!-- ============================================================ -->
+<section id="modules" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §4 Module Details</div>
+      <h2 class="section-title">模块详情</h2>
+      <p class="section-subtitle">点击左侧模块查看：核心功能、关联实体/API、Permission Code、关键业务规则、原型</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="modules">
+      <!-- REPEAT:module_item -->
+      <div class="splitview-item clr-{{MOD_COLOR}} {{MOD_ACTIVE}}" data-svtarget="mod-{{MOD_ID_SAFE}}">
+        <span class="sv-id">{{MOD_ID}}</span>
+        <span class="sv-name">{{MOD_NAME}}</span>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+    <div class="splitview-detail">
+      <!-- REPEAT:module_panel -->
+      <div class="sv-pane clr-{{MP_COLOR}} {{MP_ACTIVE}}" id="mod-{{MP_ID_SAFE}}">
+        <div class="modhead">
+          <div class="modhead-meta">
+            <span class="badge clr-{{MP_COLOR}}" style="background:var(--c-bg);color:var(--c-strong);border-color:var(--c-border);">模块 {{MP_ID}}</span>
+            <span class="badge badge-{{MP_PRIORITY_BADGE}}">{{MP_PRIORITY}}</span>
+            <span class="tag clr-{{MP_COLOR}}">{{MP_TECH}}</span>
+            <span class="badge badge-neutral">{{MP_LAYER}}</span>
+          </div>
+          <h3 class="modhead-title">{{MP_NAME}}</h3>
+          <p class="modhead-desc">{{MP_DESC}}</p>
+        </div>
+        <div class="modgrid cols-2">
+          <div class="modblock">
+            <h4>📋 核心功能</h4>
+            <ul>
+              <!-- REPEAT:mp_feature --><li>{{MPF_TEXT}}</li><!-- /REPEAT -->
+            </ul>
+          </div>
+          <div class="modblock">
+            <h4>🔗 关联实体 / API</h4>
+            <ul>
+              <!-- REPEAT:mp_entity --><li><code>{{MPE_TEXT}}</code></li><!-- /REPEAT -->
+            </ul>
+            <h4 style="margin-top:1rem;">🔐 Permission Code</h4>
+            <ul>
+              <!-- REPEAT:mp_perm --><li><code>{{MPP_TEXT}}</code></li><!-- /REPEAT -->
+            </ul>
+          </div>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>📐 关键业务规则</h4>
+          <ul class="br-list br-list-wrap" data-collapse>
+            <!-- REPEAT:mp_br -->
+            <li class="{{MPB_HIDDEN}}">
+              <span class="br-code">{{MPB_CODE}}</span>
+              <span style="flex:1;">{{MPB_TEXT}}</span>
+            </li>
+            <!-- /REPEAT -->
+          </ul>
+          <!-- OPTIONAL:mp_br_expand -->
+          <button class="br-expand-btn" data-expand-btn>展开剩余 {{MP_BR_HIDDEN_COUNT}} 条 ↓</button>
+          <!-- /OPTIONAL -->
+        </div>
+
+        <!-- OPTIONAL:mp_ac -->
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>✅ 验收标准（AC）</h4>
+          <ul class="ac-list">
+            <!-- REPEAT:mp_ac -->
+            <li>
+              <span class="ac-code">{{MPA_CODE}}</span>
+              <span style="flex:1;">{{MPA_TEXT}}</span>
+            </li>
+            <!-- /REPEAT -->
+          </ul>
+        </div>
+        <!-- /OPTIONAL -->
+        <!-- OPTIONAL:mp_prototype -->
+        <div style="margin-top:1rem;">
+          <button class="modlink clr-{{MP_COLOR}}" data-protoview="{{MP_PROTO_SRC}}" data-protoname="{{MP_NAME}}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            查看原型
+          </button>
+        </div>
+        <!-- /OPTIONAL -->
+      </div>
+      <!-- /REPEAT -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §5 PROTOTYPES — 原型预览                                       -->
+<!-- ============================================================ -->
+<section id="prototypes">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §5 Prototype Preview</div>
+      <h2 class="section-title">原型预览</h2>
+      <p class="section-subtitle">点击图片查看大图。可按层级筛选。</p>
+    </div>
+  </div>
+  <div class="proto-filter" data-protofilter>
+    <!-- REPEAT:proto_filter -->
+    <button class="proto-filter-btn {{PFB_ACTIVE}}" data-filter="{{PFB_KEY}}">{{PFB_NAME}} <span style="opacity:0.6;">{{PFB_COUNT}}</span></button>
+    <!-- /REPEAT -->
+  </div>
+  <div class="proto-grid" data-protogrid>
+    <!-- REPEAT:proto_card -->
+    <div class="proto-card" data-cat="{{PC_CAT}}">
+      <div class="proto-card-img"><img src="{{PC_SRC}}" alt="{{PC_NAME}}" data-zoomable data-cap="{{PC_NAME}}" /></div>
+      <div class="proto-card-meta">
+        <div class="proto-card-name">{{PC_NAME}}</div>
+        <div class="proto-card-mod">{{PC_MOD}}</div>
+      </div>
+    </div>
+    <!-- /REPEAT -->
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §6 ROLES — 角色与权限（左侧 Tab）                                -->
+<!-- ============================================================ -->
+<section id="roles" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §6 Roles &amp; Permissions</div>
+      <h2 class="section-title">角色与权限</h2>
+      <p class="section-subtitle">角色定义、权限矩阵、角色规则、Permission Code 注册表</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="roles">
+      <!-- REPEAT:roles_tab -->
+      <div class="splitview-item clr-indigo {{RT_ACTIVE}}" data-svtarget="roles-{{RT_ID}}">
+        <span class="sv-icon">{{RT_ICON}}</span>
+        <span class="sv-name">{{RT_NAME}}</span>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+    <div class="splitview-detail">
+      <!-- REPEAT:roles_pane -->
+      <div class="sv-pane clr-indigo {{RP_ACTIVE}}" id="roles-{{RP_ID}}">
+        {{RP_CONTENT}}
+      </div>
+      <!-- /REPEAT -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §7 RULES — 全局规范（左侧 Tab）                                  -->
+<!-- ============================================================ -->
+<section id="rules">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §7 Global Rules</div>
+      <h2 class="section-title">全局规范</h2>
+      <p class="section-subtitle">跨模块的全局规则、性能指标与非功能性需求</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="rules">
+      <!-- REPEAT:rules_tab -->
+      <div class="splitview-item clr-rose {{GT_ACTIVE}}" data-svtarget="rules-{{GT_ID}}">
+        <span class="sv-icon">{{GT_ICON}}</span>
+        <span class="sv-name">{{GT_NAME}}</span>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+    <div class="splitview-detail">
+      <!-- REPEAT:rules_pane -->
+      <div class="sv-pane clr-rose {{GP_ACTIVE}}" id="rules-{{GP_ID}}">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <!-- REPEAT:rule_item -->
+            <li>
+              <span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span>
+              <span><strong>{{RI_ID}}</strong> · {{RI_TEXT}}</span>
+            </li>
+            <!-- /REPEAT -->
+          </ul>
+        </div>
+      </div>
+      <!-- /REPEAT -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §8 DESIGN — 方案设计（左侧 Tab）                                 -->
+<!-- ============================================================ -->
+<section id="design" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §8 Solution Design</div>
+      <h2 class="section-title">方案设计</h2>
+      <p class="section-subtitle">技术架构、数据模型、部署拓扑、关键决策、错误码</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="design">
+      <div class="splitview-item clr-teal active" data-svtarget="design-arch">
+        <span class="sv-icon">🏛️</span>
+        <span class="sv-name">技术架构</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-data">
+        <span class="sv-icon">🗄️</span>
+        <span class="sv-name">数据模型</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-deploy">
+        <span class="sv-icon">🚀</span>
+        <span class="sv-name">部署拓扑</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-decisions">
+        <span class="sv-icon">⚖️</span>
+        <span class="sv-name">关键决策</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-errors">
+        <span class="sv-icon">⚠️</span>
+        <span class="sv-name">错误码</span>
+      </div>
+    </div>
+    <div class="splitview-detail">
+      <!-- 技术架构 -->
+      <div class="sv-pane clr-teal active" id="design-arch">
+        {{DESIGN_ARCH_CONTENT}}
+      </div>
+      <!-- 数据模型 -->
+      <div class="sv-pane clr-teal" id="design-data">
+        {{DESIGN_DATA_CONTENT}}
+      </div>
+      <!-- 部署拓扑 -->
+      <div class="sv-pane clr-teal" id="design-deploy">
+        {{DESIGN_DEPLOY_CONTENT}}
+      </div>
+      <!-- 关键决策 -->
+      <div class="sv-pane clr-teal" id="design-decisions">
+        {{DESIGN_DECISIONS_CONTENT}}
+      </div>
+      <!-- 错误码 -->
+      <div class="sv-pane clr-teal" id="design-errors">
+        {{DESIGN_ERRORS_CONTENT}}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §9 AI GUIDE — AI 开发指南                                       -->
+<!-- ============================================================ -->
+<section id="ai-guide">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §9 AI Coding Guide</div>
+      <h2 class="section-title">AI 开发指南</h2>
+      <p class="section-subtitle">基于 Skill 的 Spec Coding 开发流程（Kiro Skills + Claude Code Skills）</p>
+    </div>
+  </div>
+
+  <!-- Spec Coding 简介 -->
+  <div class="grid grid-2" style="margin-bottom:1.5rem;">
+    <div class="card clr-indigo">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3 class="card-title">什么是 Spec Coding</h3>
+      </div>
+      <div class="card-desc">
+        <strong>以 Spec 文档为单一真相源（SSOT）的 AI 辅助开发模式</strong>。BR/EX/AC 编号体系形成"需求 → 测试 → 任务 → API"全链路追溯，AI 严格按文档生成代码并强制输出自检清单，确保实现可验证、可追溯。
+      </div>
+    </div>
+    <div class="card clr-purple">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg></div>
+        <h3 class="card-title">人在回路（Human-in-the-Loop）</h3>
+      </div>
+      <div class="card-desc">
+        每个 Skill 遵循"先确认方案，再生成代码"原则。AI 输出实施方案表格供开发者确认，避免方向错误导致 Token 浪费与返工。
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill 列表 -->
+  <h3 style="font-size:1.05rem;font-weight:600;margin:1.5rem 0 1rem;">📚 角色 Skill</h3>
+  <div class="grid grid-3">
+    <!-- REPEAT:skill -->
+    <div class="skill-card clr-{{SK_COLOR}}">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">{{SK_ICON}}</div>
+        <div class="skill-card-name">{{SK_NAME}}</div>
+      </div>
+      <div class="skill-card-desc">{{SK_DESC}}</div>
+      <div class="skill-card-trigger">{{SK_TRIGGER}}</div>
+    </div>
+    <!-- /REPEAT -->
+  </div>
+
+  <!-- 工作流 -->
+  <h3 style="font-size:1.05rem;font-weight:600;margin:1.75rem 0 1rem;">🔄 人在回路工作流（5 步）</h3>
+  <div>
+    <!-- REPEAT:ai_step -->
+    <div class="step-card clr-{{AIS_COLOR}}">
+      <div class="step-card-num">{{AIS_NUM}}</div>
+      <div class="step-card-content">
+        <div class="step-card-title">{{AIS_TITLE}}</div>
+        <div class="step-card-desc">{{AIS_DESC}}</div>
+      </div>
+    </div>
+    <!-- /REPEAT -->
+  </div>
+
+  <!-- 触发方式 -->
+  <h3 style="font-size:1.05rem;font-weight:600;margin:1.75rem 0 1rem;">🎯 触发方式</h3>
+  <div class="grid grid-3">
+    <div class="card clr-blue">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11H7v6h2zm5 0h-2v6h2zm5 0h-2v6h2zM3 7h18v12H3z"/></svg></div>
+        <h3 class="card-title">方式 1 · 按任务编号（推荐）</h3>
+      </div>
+      <div class="skill-card-trigger" style="margin:0.75rem 0;">#flutter-dev 完成任务 QLIST-04</div>
+      <p style="font-size:0.825rem;color:var(--fg-muted);">最完整：自动反查模块、依赖、验收标准</p>
+    </div>
+    <div class="card clr-green">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></div>
+        <h3 class="card-title">方式 2 · 按模块 ID</h3>
+      </div>
+      <div class="skill-card-trigger" style="margin:0.75rem 0;">#flutter-dev 为模块 5.2 生成首页</div>
+      <p style="font-size:0.825rem;color:var(--fg-muted);">需手动指定模块编号，加载对应 PRD</p>
+    </div>
+    <div class="card clr-orange">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <h3 class="card-title">方式 3 · 自由描述</h3>
+      </div>
+      <div class="skill-card-trigger" style="margin:0.75rem 0;">#backend-dev 实现敏感词校验 Service</div>
+      <p style="font-size:0.825rem;color:var(--fg-muted);">最灵活，AI 智能识别意图</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §10 AI SUMMARY — AI 评审摘要                                    -->
+<!-- ============================================================ -->
+<section id="aisummary" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §10 Review Decision Panel</div>
+      <h2 class="section-title">评审决策面板</h2>
+      <p class="section-subtitle">基于 spec 文档的评审决策面板：已对齐项 / 待澄清风险 / 开放问题 / 决策时间表</p>
+    </div>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#d1fae5;color:#047857;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l5 5L20 7"/></svg></div>
+        <h3 class="card-title">已对齐项</h3>
+      </div>
+      <ul class="checklist">
+        <!-- REPEAT:passed_item -->
+        <li><span class="check-icon success">✓</span><span>{{PI_TEXT}}</span></li>
+        <!-- /REPEAT -->
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#fef3c7;color:#b45309;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <h3 class="card-title">待澄清风险</h3>
+      </div>
+      <ul class="checklist">
+        <!-- REPEAT:risk_item -->
+        <li><span class="check-icon warning">!</span><span>{{RI_TEXT}}</span></li>
+        <!-- /REPEAT -->
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">❓ 开放问题（OQ）</h3>
+  <!-- REPEAT:oq -->
+  <div class="oq-card">
+    <span class="oq-id">{{OQ_ID}}</span>
+    <div class="oq-q">{{OQ_QUESTION}}</div>
+    <div class="oq-default"><strong>临时默认策略：</strong>{{OQ_DEFAULT}}</div>
+  </div>
+  <!-- /REPEAT -->
+
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">📅 决策时间表</h3>
+  <div class="timetable">
+    <div class="timetable-row" style="background:var(--bg-soft);font-weight:600;font-size:0.78rem;color:var(--fg-muted);text-transform:uppercase;letter-spacing:0.05em;">
+      <div>截止日期</div>
+      <div>决策项</div>
+      <div>负责人</div>
+      <div>状态</div>
+    </div>
+    <!-- REPEAT:decision_row -->
+    <div class="timetable-row">
+      <div class="timetable-date">{{DR_DATE}}</div>
+      <div class="timetable-task">{{DR_TASK}}</div>
+      <div class="timetable-owner">{{DR_OWNER}}</div>
+      <div><span class="badge badge-{{DR_STATUS_BADGE}}">{{DR_STATUS}}</span></div>
+    </div>
+    <!-- /REPEAT -->
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-brand">{{PROJECT_NAME}}</div>
+    <div class="footer-meta">
+      文档版本 {{DOC_VERSION}} · 生成于 {{GENERATED_AT}}<br/><br/>
+      <a href="{{REPO_URL}}" target="_blank" rel="noopener">{{REPO_URL}}</a>
+    </div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" aria-label="关闭">×</button>
+  <img id="lightbox-img" src="" alt="" />
+  <div class="lightbox-cap" id="lightbox-cap"></div>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false, theme: 'base',
+    themeVariables: {
+      primaryColor: '#eff6ff', primaryTextColor: '#1e3a8a', primaryBorderColor: '#bfdbfe',
+      lineColor: '#94a3b8', secondaryColor: '#faf5ff', tertiaryColor: '#f8fafc',
+      fontFamily: 'ui-sans-serif, system-ui, sans-serif', fontSize: '14px'
+    }
+  });
+  // Render mermaid even inside hidden panes (sv-pane / tab-pane / arch-pane).
+  // Mermaid 10 skips elements with zero layout, so temporarily reveal them.
+  (async () => {
+    const hiddenPanes = document.querySelectorAll('.sv-pane, .tab-pane, .arch-pane');
+    const prev = [];
+    hiddenPanes.forEach(p => { prev.push(p.style.display); p.style.display = 'block'; });
+    try {
+      await mermaid.run({ querySelector: '.mermaid' });
+    } catch (e) { console.warn('mermaid render error', e); }
+    hiddenPanes.forEach((p, i) => { p.style.display = prev[i] || ''; });
+  })();
+</script>
+<script>
+  // Active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-links a');
+  const navObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => navObs.observe(s));
+
+  // Top tabs (only used in §2 flows)
+  document.querySelectorAll('[data-tabs]').forEach(group => {
+    const buttons = group.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        const parent = group.closest('section');
+        parent.querySelectorAll('.tab-btn').forEach(b => {
+          if (b.parentElement === group) b.classList.toggle('active', b === btn);
+        });
+        parent.querySelectorAll(':scope > .tab-pane').forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+  });
+
+  // Side-tabs (splitview)
+  document.querySelectorAll('[data-sv]').forEach(list => {
+    const section = list.closest('section');
+    list.querySelectorAll('.splitview-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = item.dataset.svtarget;
+        list.querySelectorAll('.splitview-item').forEach(i => i.classList.toggle('active', i === item));
+        section.querySelectorAll('.sv-pane').forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+  });
+
+  // Architecture sub-switch
+  document.querySelectorAll('[data-archsub]').forEach(group => {
+    const buttons = group.querySelectorAll('.arch-sub-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.archtab;
+        group.parentElement.querySelectorAll('.arch-sub-btn').forEach(b => {
+          if (b.parentElement === group) b.classList.toggle('active', b === btn);
+        });
+        group.parentElement.querySelectorAll('.arch-pane').forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+  });
+
+  // Prototype filter
+  const protoGrid = document.querySelector('[data-protogrid]');
+  const protoFilter = document.querySelector('[data-protofilter]');
+  if (protoFilter && protoGrid) {
+    protoFilter.querySelectorAll('.proto-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        protoFilter.querySelectorAll('.proto-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+        const cat = btn.dataset.filter;
+        protoGrid.querySelectorAll('.proto-card').forEach(card => {
+          card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+        });
+      });
+    });
+  }
+
+  // BR list collapse/expand
+  document.querySelectorAll('[data-expand-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const list = btn.previousElementSibling;
+      if (!list || !list.classList.contains('br-list-wrap')) return;
+      const expanded = btn.dataset.expanded === 'true';
+      const items = list.querySelectorAll('li');
+      const initialHidden = parseInt(btn.dataset.hiddenCount || '0');
+      if (!expanded) {
+        items.forEach((li, idx) => { if (idx >= 5) li.classList.remove('hidden'); });
+        btn.dataset.expanded = 'true';
+        btn.textContent = '收起 ↑';
+      } else {
+        items.forEach((li, idx) => { if (idx >= 5) li.classList.add('hidden'); });
+        btn.dataset.expanded = 'false';
+        btn.textContent = `展开剩余 ${initialHidden} 条 ↓`;
+      }
+    });
+    const list = btn.previousElementSibling;
+    if (list && list.classList.contains('br-list-wrap')) {
+      const hiddenCount = list.querySelectorAll('li.hidden').length;
+      btn.dataset.hiddenCount = String(hiddenCount);
+    }
+  });
+
+  // Lightbox
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCap = document.getElementById('lightbox-cap');
+  document.addEventListener('click', e => {
+    const img = e.target.closest('[data-zoomable]');
+    if (img) {
+      lightboxImg.src = img.src;
+      lightboxCap.textContent = img.dataset.cap || img.alt || '';
+      lightbox.classList.add('active');
+      return;
+    }
+    const btn = e.target.closest('[data-protoview]');
+    if (btn) {
+      lightboxImg.src = btn.dataset.protoview;
+      lightboxCap.textContent = btn.dataset.protoname || '';
+      lightbox.classList.add('active');
+      return;
+    }
+  });
+  function closeLightbox() { lightbox.classList.remove('active'); }
+  lightbox.addEventListener('click', e => { if (e.target === lightbox || e.target === lightboxImg) closeLightbox(); });
+  document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+
+</body>
+</html>

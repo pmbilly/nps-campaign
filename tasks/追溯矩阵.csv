@@ -1,0 +1,39 @@
+子模块,BR 编号,关联 EX,关联 AC,关联任务,关联 API,备注
+05.01,BR-05.01-01,EX-05.01-02,"AC-05.01-01, AC-05.01-07",TASK-001,POST /api/v1/campaigns,CSI 透传 + 编码唯一
+05.01,BR-05.01-02,EX-05.01-01,"AC-05.01-02, AC-05.01-06",TASK-001,POST /api/v1/admin/campaigns,URL 比例 = 100%
+05.01,BR-05.01-03,-,AC-05.01-04,TASK-001,GET /api/v1/admin/campaigns,起止时间控制定时任务窗口
+05.01,BR-05.01-04,-,AC-05.01-03,TASK-001,POST /api/v1/admin/campaigns,App 端提供默认字段
+05.01,BR-05.01-05,-,AC-05.01-05,TASK-001,PUT /api/v1/admin/campaigns/{id},启用/停用计划
+05.01,BR-05.01-06,-,AC-05.01-07,TASK-001,DELETE /api/v1/admin/campaigns/{id},逻辑删除
+05.01,BR-05.01-07,-,AC-05.01-03,TASK-001,POST /api/v1/admin/campaigns,图片 jpg/png/webp ≤ 3MB
+05.01,BR-05.01-08,-,AC-05.01-01,TASK-001,POST /api/v1/campaigns,自动生成编码规则
+05.02,BR-05.02-01,-,AC-05.02-01,TASK-005,GET /api/v1/admin/campaigns/deliveries,列表排序与筛选
+05.02,BR-05.02-02,-,AC-05.02-01,TASK-005,GET /api/v1/admin/campaigns/deliveries,敏感字段脱敏
+05.02,BR-05.02-03,-,AC-05.02-02,TASK-005,GET /api/v1/admin/campaigns/deliveries,投放时间段
+05.02,BR-05.02-04,EX-05.02-01,AC-05.02-03,TASK-005,POST /api/v1/admin/campaigns/deliveries/import,导入匹配更新
+05.02,BR-05.02-05,-,AC-05.02-04,TASK-005,POST /api/v1/admin/campaigns/deliveries/export,导出字段规则
+05.02,BR-05.02-06,EX-05.02-03,"AC-05.02-05, AC-05.02-09",TASK-005,POST /api/v1/admin/campaigns/deliveries/push,推送仅限未推送/失败
+05.02,BR-05.02-07,EX-05.02-02,AC-05.02-06,TASK-005,POST /api/v1/admin/campaigns/deliveries/push,推送状态流转
+05.02,BR-05.02-08,-,AC-05.02-07,TASK-005,DELETE /api/v1/admin/campaigns/deliveries/{id},逻辑删除
+05.03,BR-05.03-01,-,AC-05.03-01,TASK-002,定时任务,xxl-job 调度配置
+05.03,BR-05.03-02,-,AC-05.03-02,TASK-002,定时任务,启用 + 时间范围内
+05.03,BR-05.03-03,-,AC-05.03-03,TASK-002,定时任务,country/model/dispatch_condition 筛选
+05.03,BR-05.03-04,-,AC-05.03-04,TASK-002,定时任务,绑车时间排序截断
+05.03,BR-05.03-05,-,AC-05.03-05,TASK-002,定时任务,URL 比例随机分配
+05.03,BR-05.03-06,-,AC-05.03-06,TASK-002,定时任务,send_time/start_time/end_time
+05.03,BR-05.03-07,EX-05.03-02,AC-05.03-07,TASK-002,POST /api/v1/campaigns/deliveries/sync,异步推送 CSI
+05.03,BR-05.03-08,-,AC-05.03-11,TASK-002,定时任务,无用户正常结束
+05.04,BR-05.04-01,-,"AC-05.04-01, AC-05.04-04",TASK-003,GET /api/v1/campaigns/user/surveys,问卷查询 + URL 含 oneId
+05.04,BR-05.04-02,-,AC-05.04-02,TASK-003,GET /api/v1/campaigns/user/surveys,返回规则
+05.04,BR-05.04-03,-,AC-05.04-03,TASK-003,Flutter,显示规则判断
+05.04,BR-05.04-04,-,AC-05.04-04,TASK-003,Flutter,APP_AD_COOL_OFF_MAP 存储
+05.04,BR-05.04-05,-,"AC-05.04-05, AC-05.04-08",TASK-003,Flutter,冷却计算 + 永久关闭
+05.04,BR-05.04-06,-,AC-05.04-06,TASK-003,Flutter,完成/过期自动隐藏
+05.04,BR-05.04-07,-,AC-05.04-09,TASK-003,Flutter,多计划独立冷却
+05.05,BR-05.05-01,"EX-05.05-01, EX-05.05-02","AC-05.05-01, AC-05.05-03",TASK-004,POST /api/v1/campaigns/user/surveys/complete,URL 含 oneId(后端拼接)
+05.05,BR-05.05-02,-,AC-05.05-02,TASK-004,Flutter + H5,JSBridge npsSurveyCompleted
+05.05,BR-05.05-03,-,AC-05.05-03,TASK-004,Flutter,隐藏浮标 + 后台同步
+05.05,BR-05.05-04,EX-05.05-08,AC-05.05-04,TASK-004,POST /api/v1/campaigns/user/surveys/complete,幂等处理
+05.05,BR-05.05-05,EX-05.05-01,AC-05.05-05,TASK-004,Flutter,H5 加载失败重试
+05.05,BR-05.05-06,-,AC-05.05-06,TASK-004,Flutter,WebView 安全区/手势/主题
+05.05,BR-05.05-07,"EX-05.05-03, EX-05.05-06","AC-05.05-07, AC-05.05-08",TASK-004,POST /api/v1/campaigns/user/surveys/complete,4 次重试策略

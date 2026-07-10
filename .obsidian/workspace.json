@@ -1,0 +1,219 @@
+{
+  "main": {
+    "id": "9cce58973d910439",
+    "type": "split",
+    "children": [
+      {
+        "id": "6db86fcf0f1110c3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "39fd5d418385d5ff",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "requirement/多语言文本.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "多语言文本"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1f669b1a29d813f2",
+    "type": "split",
+    "children": [
+      {
+        "id": "971a80b9c07761ff",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "691e8e72dafff10d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "cfe246dda71ef7d4",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "7bb27188ed55c32b",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "9351d4bf43418d2a",
+    "type": "split",
+    "children": [
+      {
+        "id": "fb7aa571714c5895",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3354c2cd68b25982",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "requirement/多语言文本.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "多语言文本 的反向链接列表"
+            }
+          },
+          {
+            "id": "733f868590865802",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "requirement/多语言文本.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "多语言文本 的出链列表"
+            }
+          },
+          {
+            "id": "97673be1b23fa802",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "e83c7cc57d7b08c3",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "c1c1f573bf0e7b53",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "requirement/多语言文本.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "多语言文本 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "39fd5d418385d5ff",
+  "lastOpenFiles": [
+    "README.md",
+    "requirement/00-需求总览.md",
+    "requirement/modules/05.01-投放计划管理.md",
+    "demo/spec-review.html",
+    "requirement/modules/05.02-投放数据管理.md",
+    "requirement/modules/05.03-定时下发任务.md",
+    "requirement/modules/05.04-App问卷入口.md",
+    "requirement/功能结构.md",
+    "requirement/modules/05.05-问卷页.md",
+    "tasks/README.md",
+    "requirement/modules/01.01.1-投放计划管理.md",
+    "tasks/追溯矩阵.csv",
+    "requirement/modules/01.01.2-投放数据管理.md",
+    "requirement/modules/01.01.3-定时下发任务.md",
+    "requirement/modules/01.01.4-App问卷入口.md",
+    "requirement/modules/01.01.5-问卷页.md",
+    "design/数据模型.md",
+    "design/权限设计.md",
+    "design/技术方案.md",
+    "design/错误码.md",
+    "NPS问卷投放-需求文档.md",
+    "scripts/check-numbering.sh",
+    "scripts/check-references.sh",
+    "scripts/check-all.sh",
+    "scripts/check-stats.sh",
+    "scripts/README.md",
+    "scripts/check-tables.sh",
+    "scripts/check-traceability.sh",
+    "scripts/check-ac-coverage.sh",
+    "demo/index.html"
+  ]
+}
