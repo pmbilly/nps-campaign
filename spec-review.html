@@ -1,0 +1,2024 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPS投放 — 需求概览</title>
+  <!--
+    SPEC REVIEW TEMPLATE v4.0
+    章节顺序:
+      1) 产品概述
+      2) 业务流程        含端到端流转胶囊条 + Tab 切换（顶部）
+      3) 功能架构
+      4) 模块详情        左右联动
+      5) 原型预览        筛选 + lightbox
+      6) 角色与权限      左侧 Tab
+      7) 全局规范        左侧 Tab
+      8) 方案设计        左侧 Tab：技术架构/数据模型/部署/决策/错误码
+      9) Spec Coding 指引
+     10) AI 评审摘要
+     11) 开放问题
+  -->
+  <style>
+    :root {
+      --bg:#fff; --bg-soft:#f8fafc; --bg-muted:#f1f5f9;
+      --fg:#0f172a; --fg-muted:#64748b; --fg-soft:#94a3b8;
+      --border:#e2e8f0; --border-soft:#f1f5f9;
+      --primary:#1d4ed8; --primary-soft:#eff6ff;
+      --radius:0.5rem; --radius-lg:0.75rem;
+      --shadow-xs:0 1px 2px 0 rgba(15,23,42,.04);
+      --shadow-sm:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+      --shadow-md:0 6px 16px rgba(15,23,42,.08),0 2px 4px rgba(15,23,42,.04);
+    }
+    .clr-blue   { --c-bg:#eff6ff; --c-border:#dbeafe; --c-fg:#1e40af; --c-strong:#1d4ed8; }
+    .clr-green  { --c-bg:#ecfdf5; --c-border:#d1fae5; --c-fg:#047857; --c-strong:#059669; }
+    .clr-purple { --c-bg:#faf5ff; --c-border:#f3e8ff; --c-fg:#7e22ce; --c-strong:#9333ea; }
+    .clr-orange { --c-bg:#fff7ed; --c-border:#ffedd5; --c-fg:#c2410c; --c-strong:#ea580c; }
+    .clr-red    { --c-bg:#fef2f2; --c-border:#fee2e2; --c-fg:#b91c1c; --c-strong:#dc2626; }
+    .clr-amber  { --c-bg:#fffbeb; --c-border:#fef3c7; --c-fg:#b45309; --c-strong:#d97706; }
+    .clr-indigo { --c-bg:#eef2ff; --c-border:#e0e7ff; --c-fg:#4338ca; --c-strong:#4f46e5; }
+    .clr-teal   { --c-bg:#f0fdfa; --c-border:#ccfbf1; --c-fg:#0f766e; --c-strong:#0d9488; }
+    .clr-rose   { --c-bg:#fff1f2; --c-border:#ffe4e6; --c-fg:#be123c; --c-strong:#e11d48; }
+    .clr-slate  { --c-bg:#f8fafc; --c-border:#e2e8f0; --c-fg:#475569; --c-strong:#334155; }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px; line-height: 1.65;
+      color: var(--fg); background: white;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1,h2,h3,h4 { margin: 0; line-height: 1.3; letter-spacing: -0.015em; font-weight: 600; }
+    p { margin: 0; }
+    code {
+      padding: 0.125rem 0.4rem; background: var(--bg-muted);
+      border-radius: 0.25rem; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.85em; color: var(--fg);
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ===== Nav ===== */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { max-width: 1280px; margin: 0 auto; padding: 0.875rem 1.5rem; display: flex; align-items: center; gap: 1.5rem; }
+    .nav-brand { display: flex; align-items: center; gap: 0.625rem; font-weight: 600; font-size: 0.95rem; }
+    .nav-brand-icon { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; background: linear-gradient(135deg,#1d4ed8 0%,#4f46e5 100%); color: white; display: grid; place-items: center; font-size: 0.85rem; font-weight: 700; }
+    .nav-links { display: flex; gap: 0.125rem; flex-wrap: wrap; margin-left: auto; }
+    .nav-links a { padding: 0.4rem 0.625rem; border-radius: 0.375rem; color: var(--fg-muted); font-size: 0.825rem; font-weight: 500; transition: all 0.12s; }
+    .nav-links a:hover { background: var(--bg-muted); color: var(--fg); text-decoration: none; }
+    .nav-links a.active { background: var(--fg); color: white; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 4rem 0 1rem; scroll-margin-top: 4.5rem; position: relative; }
+    /* Alternating section background — odd: white, even: soft */
+    section.section-alt { background: var(--bg-soft); }
+    section.section-alt::before, section.section-alt::after {
+      content: ''; position: absolute; left: calc(50% - 50vw); right: calc(50% - 50vw);
+      width: 100vw; background: var(--bg-soft); top: 0; bottom: 0; z-index: -1;
+    }
+
+    /* ===== Hero ===== */
+    .hero { position: relative; padding: 4.5rem 0 3.5rem; background: linear-gradient(180deg,#fff 0%,var(--bg-soft) 100%); border-bottom: 1px solid var(--border); overflow: hidden; }
+    .hero::before { content:''; position: absolute; inset: 0; pointer-events: none; background-image: radial-gradient(circle at 15% 20%, rgba(59,130,246,.08), transparent 40%), radial-gradient(circle at 85% 80%, rgba(168,85,247,.08), transparent 40%); }
+    .hero .container { position: relative; }
+    .hero-meta { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-radius: 9999px; background: white; border: 1px solid var(--border); font-size: 0.8rem; color: var(--fg-muted); margin-bottom: 1.25rem; box-shadow: var(--shadow-xs); }
+    .pulse { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,.18); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 4px rgba(16,185,129,.18);} 50%{box-shadow:0 0 0 6px rgba(16,185,129,.25);} }
+    .hero h1 { font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 700; letter-spacing: -0.025em; margin-bottom: 1rem; }
+    .hero h1 .accent { background: linear-gradient(135deg,#1d4ed8 0%,#7e22ce 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p.lead { font-size: 1.075rem; color: var(--fg-muted); max-width: 44rem; margin-bottom: 1.75rem; }
+    .hero-cta { display: flex; gap: 0.625rem; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.125rem; background: var(--fg); color: white; border-radius: var(--radius); font-weight: 500; font-size: 0.875rem; border: none; cursor: pointer; transition: opacity 0.15s, transform 0.05s; box-shadow: var(--shadow-sm); }
+    .btn:hover { opacity: 0.92; text-decoration: none; }
+    .btn:active { transform: translateY(1px); }
+    .btn-ghost { background: white; color: var(--fg); border: 1px solid var(--border); }
+
+    .hero-stats { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(4,1fr); gap: 0.875rem; }
+    .hero-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem 1.25rem; box-shadow: var(--shadow-xs); position: relative; overflow: hidden; }
+    .hero-stat::after { content:''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--c-strong, var(--primary)); }
+    .hero-stat-value { font-size: 1.75rem; font-weight: 700; line-height: 1; color: var(--fg); letter-spacing: -0.02em; }
+    .hero-stat-label { font-size: 0.78rem; color: var(--fg-muted); margin-top: 0.5rem; font-weight: 500; }
+    .hero-stat-sub { font-size: 0.7rem; color: var(--fg-soft); margin-top: 0.25rem; }
+    @media (max-width: 768px) { .hero-stats { grid-template-columns: repeat(2,1fr); } .nav-links { display: none; } }
+
+    /* ===== Section ===== */
+    .section-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .section-eyebrow { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .section-eyebrow-dot { width: 0.375rem; height: 0.375rem; border-radius: 9999px; }
+    .section-title { font-size: 1.625rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    .section-subtitle { color: var(--fg-muted); font-size: 0.95rem; max-width: 56rem; }
+    .section-side-meta { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border-radius: 9999px; background: white; border: 1px solid var(--border); font-size: 0.8rem; color: var(--fg-muted); box-shadow: var(--shadow-xs); }
+
+    /* ===== Cards ===== */
+    .card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-xs); }
+    .card-hover { transition: all 0.18s; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-border, var(--border)); }
+    .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.875rem; }
+    .card-icon { width: 2.25rem; height: 2.25rem; border-radius: var(--radius); display: grid; place-items: center; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); flex-shrink: 0; }
+    .card-title { font-size: 1rem; font-weight: 600; }
+    .card-desc { color: var(--fg-muted); font-size: 0.9rem; line-height: 1.6; }
+
+    .grid { display: grid; gap: 1rem; }
+    .grid-2 { grid-template-columns: repeat(2,1fr); }
+    .grid-3 { grid-template-columns: repeat(3,1fr); }
+    .grid-4 { grid-template-columns: repeat(4,1fr); }
+    @media (max-width: 1024px) { .grid-3, .grid-4 { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } .hero h1 { font-size: 2rem; } }
+
+    .tag { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--c-fg); font-size: 0.72rem; font-weight: 500; }
+    .badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.125rem 0.5rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 500; background: var(--c-bg); color: var(--c-fg); border: 1px solid var(--c-border); }
+    .badge-success { --c-bg:#d1fae5; --c-fg:#065f46; --c-border:#a7f3d0; }
+    .badge-warning { --c-bg:#fef3c7; --c-fg:#92400e; --c-border:#fde68a; }
+    .badge-danger { --c-bg:#fee2e2; --c-fg:#991b1b; --c-border:#fecaca; }
+    .badge-info { --c-bg:#dbeafe; --c-fg:#1e40af; --c-border:#bfdbfe; }
+    .badge-neutral { --c-bg: var(--bg-muted); --c-fg: var(--fg-muted); --c-border: var(--border); }
+
+    .table-wrap { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: white; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead { background: var(--bg-soft); }
+    th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.74rem; color: var(--fg-muted); letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--bg-soft); }
+
+    .checklist { list-style: none; padding: 0; margin: 0; }
+    .checklist li { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.625rem 0; font-size: 0.9rem; border-bottom: 1px solid var(--border-soft); }
+    .checklist li:last-child { border-bottom: none; }
+    .check-icon { flex-shrink: 0; width: 1.25rem; height: 1.25rem; border-radius: 9999px; display: grid; place-items: center; margin-top: 0.0625rem; font-size: 0.7rem; font-weight: 700; }
+    .check-icon.success { background: #d1fae5; color: #047857; }
+    .check-icon.warning { background: #fef3c7; color: #b45309; }
+    .check-icon.info { background: #dbeafe; color: #1e40af; }
+
+    /* ===== Pill tabs (used for §2 flows top — unified with .arch-sub / .proto-filter) ===== */
+    .tabs-top { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .tabs-top .tab-btn { padding: 0.5rem 1rem; border-radius: var(--radius); background: white; border: 1px solid var(--border); color: var(--fg-muted); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.12s; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .tabs-top .tab-btn:hover { color: var(--fg); }
+    .tabs-top .tab-btn.active { background: var(--fg); color: white; border-color: var(--fg); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ===== Side-tabs (used for §6/7/8/9) — same DOM as modsplit ===== */
+    .splitview { display: grid; grid-template-columns: 16rem 1fr; gap: 1.25rem; align-items: stretch; }
+    @media (max-width: 880px) { .splitview { grid-template-columns: 1fr; } .splitview-list { max-height: 18rem; overflow-y: auto; position: static !important; } }
+    .splitview-list { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 0.5rem; box-shadow: var(--shadow-xs); align-self: start; position: sticky; top: 5rem; }
+    .splitview-item { display: flex; align-items: center; gap: 0.625rem; padding: 0.625rem 0.75rem; border-radius: var(--radius); cursor: pointer; transition: all 0.12s; user-select: none; border: 1px solid transparent; }
+    .splitview-item:hover { background: var(--bg-soft); }
+    .splitview-item.active { background: var(--c-bg, var(--primary-soft)); border-color: var(--c-border, var(--primary-soft)); }
+    .splitview-item .sv-id { padding: 0.125rem 0.375rem; background: var(--bg-muted); color: var(--fg-muted); border-radius: 0.25rem; font-size: 0.72rem; font-weight: 700; text-align: center; flex-shrink: 0; }
+    .splitview-item.active .sv-id { background: var(--c-strong); color: white; }
+    .splitview-item .sv-name { font-size: 0.875rem; font-weight: 500; color: var(--fg); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .splitview-item .sv-icon { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+    .splitview-detail { min-height: 22rem; }
+    .sv-pane { display: none; }
+    .sv-pane.active { display: block; }
+
+    /* ===== Module head + blocks (reused for module + design panes) ===== */
+    .modhead { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow-xs); }
+    .modhead-meta { display: flex; gap: 0.375rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.5rem; }
+    .modhead-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .modhead-desc { color: var(--fg-muted); font-size: 0.925rem; }
+    .modgrid { display: grid; gap: 1rem; }
+    @media (min-width: 720px) { .modgrid.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .modblock { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; }
+    .modblock h4 { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.375rem; }
+    .modblock ul { list-style: none; padding: 0; margin: 0; font-size: 0.875rem; color: var(--fg); }
+    .modblock ul li { padding: 0.3125rem 0; line-height: 1.55; }
+    .modblock ul li::before { content: '·'; color: var(--c-strong, var(--primary)); margin-right: 0.5rem; font-weight: 700; }
+    .modblock .br-list li { display: flex; gap: 0.625rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-soft); }
+    .modblock .br-list li:last-child { border-bottom: none; }
+    .modblock .br-list li::before { display: none; }
+    .modblock .br-code { background: var(--bg-muted); color: var(--fg-muted); padding: 0.0625rem 0.4rem; border-radius: 0.25rem; font-family: ui-monospace, monospace; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; margin-top: 0.0625rem; }
+    .modlink { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.75rem; background: var(--c-bg, var(--primary-soft)); border: 1px solid var(--c-border, var(--primary-soft)); color: var(--c-strong, var(--primary)); border-radius: var(--radius); font-size: 0.825rem; font-weight: 500; cursor: pointer; }
+    .modlink:hover { text-decoration: none; opacity: 0.9; }
+
+    /* ===== Function tree (Architecture) ===== */
+    .fntree { background: var(--bg-soft); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+    .fntree-row { display: grid; gap: 1rem; }
+    @media (min-width: 800px) { .fntree-row.cols-2 { grid-template-columns: 1fr 1fr; } }
+    .fntree-layer { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+    .fntree-layer-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.75rem; padding-bottom: 0.625rem; border-bottom: 1px dashed var(--border); }
+    .fntree-layer-icon { width: 1.75rem; height: 1.75rem; border-radius: var(--radius); display: grid; place-items: center; background: var(--c-bg); color: var(--c-strong); font-size: 0.875rem; }
+    .fntree-layer-title { font-size: 0.95rem; font-weight: 600; color: var(--fg); }
+    .fntree-layer-sub { font-size: 0.78rem; color: var(--fg-muted); margin-top: 0.0625rem; }
+    .fntree-modules { display: grid; gap: 0.5rem; }
+    .fntree-mod { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: var(--radius); background: var(--c-bg); color: var(--c-fg); border: 1px solid var(--c-border); font-size: 0.85rem; font-weight: 500; }
+    .fntree-mod-id { padding: 0.125rem 0.375rem; background: white; color: var(--c-strong); border-radius: 0.25rem; font-size: 0.7rem; font-weight: 700; text-align: center; flex-shrink: 0; border: 1px solid var(--c-border); }
+
+    /* ===== Mermaid + image cards ===== */
+    .mermaid-wrap { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; overflow-x: auto; box-shadow: var(--shadow-xs); }
+    .mermaid-wrap pre { margin: 0; text-align: center; font-family: ui-monospace, monospace; font-size: 0.85rem; }
+    .flowimg { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; box-shadow: var(--shadow-xs); text-align: center; }
+    .flowimg img { max-width: 100%; border-radius: var(--radius); cursor: zoom-in; margin: 0 auto; }
+    .flowimg-caption { color: var(--fg-muted); font-size: 0.85rem; margin-top: 0.75rem; }
+
+    /* ===== Process strip (核心流程胶囊条 — 紧凑版，可滚动) ===== */
+    .process-strip {
+      background: linear-gradient(180deg, white 0%, var(--bg-soft) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-xs);
+      overflow-x: auto;
+    }
+    .process-strip-title {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.74rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--fg-muted); margin-bottom: 1.125rem;
+    }
+    .process-strip-title::before {
+      content: ''; width: 0.375rem; height: 0.375rem; border-radius: 9999px;
+      background: var(--primary);
+    }
+    .process-strip-flow {
+      display: flex; align-items: flex-start; gap: 0;
+      min-width: max-content; padding-top: 0.25rem;
+    }
+    .process-step {
+      flex: 0 0 7.5rem;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      background: transparent; border: none; padding: 0 0.5rem;
+      position: relative;
+    }
+    /* Connecting line between number badges */
+    .process-step::after {
+      content: '';
+      position: absolute;
+      top: 0.875rem;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--border);
+      z-index: 0;
+    }
+    .process-step:last-child::after { display: none; }
+    .process-step-num {
+      position: relative; z-index: 1;
+      width: 1.75rem; height: 1.75rem;
+      background: white; color: var(--fg);
+      border: 2px solid var(--border);
+      border-radius: 9999px;
+      display: grid; place-items: center;
+      font-size: 0.75rem; font-weight: 700;
+      margin-bottom: 0.625rem;
+      transition: all 0.15s;
+    }
+    .process-step:hover .process-step-num {
+      background: var(--fg); color: white; border-color: var(--fg);
+      transform: scale(1.08);
+    }
+    .process-step-name {
+      font-size: 0.825rem; font-weight: 600; color: var(--fg);
+      line-height: 1.3; margin-bottom: 0.125rem;
+    }
+    .process-step-actor {
+      font-size: 0.7rem; color: var(--fg-muted);
+      line-height: 1.3;
+    }
+    /* Legacy text arrows are hidden — line replaces them */
+    .process-arrow { display: none; }
+
+    /* ===== Decision card ===== */
+    .decision-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.375rem; transition: all 0.18s; }
+    .decision-card:hover { border-color: var(--c-border, var(--primary-soft)); box-shadow: var(--shadow-md); }
+    .decision-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.625rem; }
+    .decision-num { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+    .decision-title { font-size: 0.95rem; font-weight: 600; }
+    .decision-choice { display: inline-flex; padding: 0.25rem 0.625rem; background: var(--c-bg, var(--bg-muted)); color: var(--c-strong, var(--fg)); border: 1px solid var(--c-border, var(--border)); border-radius: 0.375rem; font-size: 0.825rem; font-weight: 600; margin: 0.5rem 0; }
+    .decision-reason { font-size: 0.875rem; color: var(--fg-muted); line-height: 1.55; }
+
+    /* ===== OQ ===== */
+    .oq-card { background: white; border: 1px solid var(--border); border-left: 3px solid #f59e0b; border-radius: var(--radius-lg); padding: 1.125rem 1.375rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-xs); }
+    .oq-id { display: inline-block; font-size: 0.7rem; font-weight: 700; color: #b45309; letter-spacing: 0.05em; background: #fef3c7; padding: 0.125rem 0.5rem; border-radius: 0.25rem; margin-bottom: 0.5rem; }
+    .oq-q { font-weight: 600; color: var(--fg); margin-bottom: 0.5rem; }
+    .oq-default { font-size: 0.875rem; color: var(--fg-muted); }
+    .oq-default strong { color: #b45309; }
+
+    /* ===== Prototype ===== */
+    .proto-filter { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .proto-filter-btn { padding: 0.375rem 0.75rem; border-radius: 9999px; background: white; border: 1px solid var(--border); color: var(--fg-muted); font-size: 0.825rem; font-weight: 500; cursor: pointer; transition: all 0.12s; }
+    .proto-filter-btn:hover { color: var(--fg); }
+    .proto-filter-btn.active { background: var(--fg); color: white; border-color: var(--fg); }
+    .proto-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
+    .proto-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: zoom-in; transition: all 0.18s; }
+    .proto-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .proto-card-img { aspect-ratio: 4/3; background: var(--bg-muted); overflow: hidden; display: grid; place-items: center; }
+    .proto-card-img img { width: 100%; height: 100%; object-fit: contain; }
+    .proto-card-meta { padding: 0.625rem 0.875rem; }
+    .proto-card-name { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.125rem; }
+    .proto-card-mod { font-size: 0.74rem; color: var(--fg-muted); }
+
+    /* ===== Lightbox ===== */
+    .lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(15,23,42,.92); display: none; align-items: center; justify-content: center; padding: 2rem; }
+    .lightbox.active { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; border-radius: var(--radius); cursor: zoom-out; }
+    .lightbox-close { position: absolute; top: 1rem; right: 1.5rem; width: 2.5rem; height: 2.5rem; border-radius: 9999px; background: rgba(255,255,255,.15); color: white; display: grid; place-items: center; border: none; cursor: pointer; font-size: 1.5rem; font-weight: 300; }
+    .lightbox-cap { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: white; font-size: 0.9rem; opacity: 0.8; }
+
+    /* ===== Feature tags (key features cloud) ===== */
+    .feature-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+    .feature-tag { padding: 0.375rem 0.75rem; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); border: 1px solid var(--c-border, var(--primary-soft)); border-radius: 9999px; font-size: 0.825rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; }
+
+    /* ===== Journey step cards (业务流程详细 10 步) ===== */
+    .journey { display: grid; gap: 0.75rem; }
+    .journey-step { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; align-items: start; padding: 1rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); transition: all 0.18s; }
+    .journey-step:hover { border-color: var(--c-border, var(--primary-soft)); box-shadow: var(--shadow-md); }
+    .journey-num { width: 2.5rem; height: 2.5rem; border-radius: 9999px; background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); display: grid; place-items: center; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .journey-content { flex: 1; }
+    .journey-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.375rem; }
+    .journey-title { font-size: 1rem; font-weight: 600; color: var(--fg); }
+    .journey-meta { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+    .journey-actor { padding: 0.125rem 0.5rem; background: var(--bg-muted); color: var(--fg-muted); border-radius: 0.25rem; font-size: 0.72rem; font-weight: 500; }
+    .journey-mod { padding: 0.125rem 0.5rem; background: var(--c-bg); color: var(--c-strong); border: 1px solid var(--c-border); border-radius: 0.25rem; font-size: 0.72rem; font-weight: 600; }
+    .journey-desc { font-size: 0.875rem; color: var(--fg-muted); line-height: 1.55; }
+
+    /* ===== Mini module cards (评审摘要速查) ===== */
+    .mini-mod-grid { display: grid; gap: 0.625rem; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); }
+    .mini-mod { padding: 0.625rem 0.875rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); border-left: 3px solid var(--c-strong, var(--primary)); transition: all 0.15s; }
+    .mini-mod:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .mini-mod-id { font-size: 0.7rem; color: var(--c-strong); font-weight: 700; letter-spacing: 0.05em; }
+    .mini-mod-name { font-size: 0.875rem; font-weight: 600; color: var(--fg); margin-top: 0.125rem; }
+    .mini-mod-meta { display: flex; gap: 0.25rem; margin-top: 0.375rem; }
+    .mini-mod-meta .badge { font-size: 0.66rem; padding: 0.0625rem 0.375rem; }
+
+    /* ===== Proto stats (原型分类统计) ===== */
+    .proto-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.5rem; }
+    .proto-stat { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 0.875rem 1rem; text-align: center; border-top: 3px solid var(--c-strong); }
+    .proto-stat-value { font-size: 1.5rem; font-weight: 700; color: var(--fg); line-height: 1; }
+    .proto-stat-label { font-size: 0.78rem; color: var(--fg-muted); margin-top: 0.375rem; }
+    @media (max-width: 768px) { .proto-stats { grid-template-columns: repeat(2, 1fr); } }
+
+    .arch-sub { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .arch-sub-btn { padding: 0.5rem 1rem; border-radius: var(--radius); background: white; border: 1px solid var(--border); color: var(--fg-muted); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.12s; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .arch-sub-btn:hover { color: var(--fg); }
+    .arch-sub-btn.active { background: var(--fg); color: white; border-color: var(--fg); }
+    .arch-pane { display: none; }
+    .arch-pane.active { display: block; }
+    .arch-layer-card { display: flex; align-items: center; gap: 1rem; padding: 0.875rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; }
+    .arch-layer-tag { width: 7rem; padding: 0.25rem 0.5rem; background: var(--c-bg); color: var(--c-strong); border: 1px solid var(--c-border); border-radius: 0.25rem; font-size: 0.78rem; font-weight: 600; text-align: center; flex-shrink: 0; }
+    .arch-layer-content { flex: 1; font-size: 0.875rem; color: var(--fg); }
+
+    /* ===== Hero TL;DR cards ===== */
+    .hero-tldr { margin-top: 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.875rem; }
+    .hero-tldr-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; box-shadow: var(--shadow-xs); }
+    .hero-tldr-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem; }
+    .hero-tldr-icon { width: 1.5rem; height: 1.5rem; border-radius: 0.375rem; background: var(--c-bg); color: var(--c-strong); display: grid; place-items: center; }
+    .hero-tldr-label { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-muted); }
+    .hero-tldr-content { font-size: 0.85rem; color: var(--fg); line-height: 1.55; }
+    .hero-tldr-content strong { color: var(--c-strong); }
+    @media (max-width: 768px) { .hero-tldr { grid-template-columns: repeat(2, 1fr); } }
+
+    /* ===== Entity card (data model — shadcn style) ===== */
+    .entity-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-xs); transition: all 0.18s; }
+    .entity-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-border); }
+    .entity-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .entity-name-block { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+    .entity-name { font-size: 1rem; font-weight: 700; color: var(--fg); font-family: ui-monospace, monospace; }
+    .entity-name-cn { font-size: 0.85rem; color: var(--fg-muted); }
+    .entity-rel { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+    .entity-rel-tag { padding: 0.125rem 0.5rem; background: var(--c-bg); color: var(--c-strong); border: 1px solid var(--c-border); border-radius: 0.375rem; font-size: 0.7rem; font-weight: 500; }
+    .entity-card-meta { font-size: 0.78rem; color: var(--fg-muted); margin-bottom: 0.75rem; padding-bottom: 0.625rem; border-bottom: 1px dashed var(--border); }
+    .entity-fields { width: 100%; border-collapse: collapse; font-size: 0.825rem; }
+    .entity-fields td { padding: 0.3rem 0.625rem 0.3rem 0; vertical-align: top; border-bottom: none; }
+    .entity-fields td:first-child { padding-left: 0; }
+    .ef-name { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: var(--fg); font-weight: 500; white-space: nowrap; }
+    .ef-type { font-family: ui-monospace, monospace; color: #1d4ed8; white-space: nowrap; }
+    .ef-desc { color: var(--fg-muted); width: 100%; }
+
+    /* ===== Collapsible BR list ===== */
+    .br-list-wrap .hidden { display: none !important; }
+    .br-expand-btn { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 0.5rem; padding: 0.375rem 0.75rem; background: var(--bg-muted); border: 1px solid var(--border); color: var(--fg-muted); border-radius: var(--radius); font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.12s; }
+    .br-expand-btn:hover { background: var(--c-bg, var(--primary-soft)); color: var(--c-strong, var(--primary)); border-color: var(--c-border, var(--primary-soft)); }
+
+    /* ===== AC list ===== */
+    .ac-list { list-style: none; padding: 0; margin: 0; }
+    .ac-list li { display: flex; gap: 0.625rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-soft); }
+    .ac-list li:last-child { border-bottom: none; }
+    .ac-list li::before { display: none; }
+    .ac-code { background: #d1fae5; color: #047857; padding: 0.0625rem 0.4rem; border-radius: 0.25rem; font-family: ui-monospace, monospace; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; margin-top: 0.0625rem; }
+    .ac-list strong { color: #047857; font-weight: 600; }
+
+    /* ===== Decision timetable ===== */
+    .timetable { margin-top: 1.25rem; }
+    .timetable-row { display: grid; grid-template-columns: 7rem 1fr 8rem 6rem; gap: 1rem; align-items: center; padding: 0.75rem 1rem; background: white; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.5rem; }
+    .timetable-date { font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 600; color: #b45309; }
+    .timetable-task { font-size: 0.875rem; color: var(--fg); }
+    .timetable-owner { font-size: 0.825rem; color: var(--fg-muted); }
+    @media (max-width: 768px) { .timetable-row { grid-template-columns: 1fr; gap: 0.25rem; } }
+
+    .skill-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.125rem; transition: all 0.18s; }
+    .skill-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-border, var(--border)); }
+    .skill-card-head { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.5rem; }
+    .skill-card-icon { width: 1.75rem; height: 1.75rem; border-radius: 0.375rem; background: var(--c-bg); color: var(--c-strong); display: grid; place-items: center; flex-shrink: 0; font-size: 0.85rem; }
+    .skill-card-name { font-family: ui-monospace, monospace; font-size: 0.875rem; font-weight: 600; }
+    .skill-card-desc { font-size: 0.825rem; color: var(--fg-muted); margin-bottom: 0.625rem; line-height: 1.5; }
+    .skill-card-trigger { padding: 0.375rem 0.625rem; background: var(--bg-muted); border-radius: 0.375rem; font-family: ui-monospace, monospace; font-size: 0.75rem; color: var(--fg); }
+
+    .step-card { display: flex; gap: 1rem; padding: 1rem 1.25rem; background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 0.75rem; }
+    .step-card-num { width: 2rem; height: 2rem; border-radius: 9999px; background: var(--c-bg); color: var(--c-strong); display: grid; place-items: center; font-weight: 700; flex-shrink: 0; }
+    .step-card-content { flex: 1; }
+    .step-card-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .step-card-desc { font-size: 0.85rem; color: var(--fg-muted); line-height: 1.55; }
+
+    footer { margin-top: 5rem; padding: 3rem 0; background: white; border-top: 1px solid var(--border); text-align: center; }
+    footer .footer-brand { font-weight: 600; color: var(--fg); margin-bottom: 0.5rem; }
+    footer .footer-meta { color: var(--fg-soft); font-size: 0.825rem; }
+    footer .footer-meta a { color: var(--fg-muted); }
+
+    /* Section accent colors */
+    #overview     .section-eyebrow { color: #1d4ed8; } #overview     .section-eyebrow-dot { background: #1d4ed8; }
+    #flows        .section-eyebrow { color: #0891b2; } #flows        .section-eyebrow-dot { background: #0891b2; }
+    #architecture .section-eyebrow { color: #7e22ce; } #architecture .section-eyebrow-dot { background: #7e22ce; }
+    #modules      .section-eyebrow { color: #ea580c; } #modules      .section-eyebrow-dot { background: #ea580c; }
+    #prototypes   .section-eyebrow { color: #d97706; } #prototypes   .section-eyebrow-dot { background: #d97706; }
+    #roles        .section-eyebrow { color: #4f46e5; } #roles        .section-eyebrow-dot { background: #4f46e5; }
+    #rules        .section-eyebrow { color: #db2777; } #rules        .section-eyebrow-dot { background: #db2777; }
+    #design       .section-eyebrow { color: #0d9488; } #design       .section-eyebrow-dot { background: #0d9488; }
+    #ai-guide     .section-eyebrow { color: #4338ca; } #ai-guide     .section-eyebrow-dot { background: #4338ca; }
+    #aisummary    .section-eyebrow { color: #16a34a; } #aisummary    .section-eyebrow-dot { background: #16a34a; }
+    #oq           .section-eyebrow { color: #f59e0b; } #oq           .section-eyebrow-dot { background: #f59e0b; }
+
+    svg { display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="nav-brand">
+      <span class="nav-brand-icon">NPS</span>
+      <span>NPS问卷投放 · 概览</span>
+    </span>
+    <div class="nav-links">
+      <a href="#overview">概述</a>
+      <a href="#flows">流程</a>
+      <a href="#architecture">架构</a>
+      <a href="#modules">模块</a>
+      <a href="#prototypes">原型</a>
+      <a href="#roles">权限</a>
+      <a href="#rules">规范</a>
+      <a href="#design">方案</a>
+      <a href="#ai-guide">AI 开发</a>
+      <a href="#aisummary">评审决策</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container">
+    <span class="hero-meta">
+      <span class="pulse"></span>
+      首次评审 · 文档版本 1.0.0 · 2026-07-09
+    </span>
+    <h1>NPS问卷投放<br/><span class="accent">精准投放 · 低打扰 · 数据闭环</span></h1>
+    <p class="lead">通过 CSI 系统或运营管理后台制定 投放管理计划，由 GAC APP 服务端按国家、车型、绑车时长精准筛选车主并分配问卷链接，在车控页以低打扰浮标触达用户，收集满意度与推荐意愿数据并回流至 CSI 系统形成闭环。</p>
+    <div class="hero-cta">
+      <a class="btn" href="#overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        开始评审
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/pmbilly/nps-campaign" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2.06c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.27-1.69-1.27-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.27-5.23-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17.91-.25 1.89-.38 2.86-.38.97 0 1.95.13 2.86.38 2.19-1.48 3.15-1.17 3.15-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.4-2.68 5.37-5.24 5.65.41.36.77 1.06.77 2.13v3.16c0 .31.21.67.8.56 4.56-1.52 7.85-5.83 7.85-10.91C23.5 5.65 18.35.5 12 .5z"/></svg>
+        查看仓库
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat clr-blue">
+        <div class="hero-stat-value">5</div>
+        <div class="hero-stat-label">功能模块</div>
+        <div class="hero-stat-sub">05.01 投放计划管理 ~ 05.05 问卷页</div>
+      </div>
+      <div class="hero-stat clr-orange">
+        <div class="hero-stat-value">38</div>
+        <div class="hero-stat-label">业务规则 BR</div>
+        <div class="hero-stat-sub">BR-05.01-01 ~ BR-05.05-07</div>
+      </div>
+      <div class="hero-stat clr-green">
+        <div class="hero-stat-value">47</div>
+        <div class="hero-stat-label">验收标准 AC</div>
+        <div class="hero-stat-sub">覆盖正常 · 异常 · 边界三类</div>
+      </div>
+      <div class="hero-stat clr-purple">
+        <div class="hero-stat-value">3</div>
+        <div class="hero-stat-label">核心实体</div>
+        <div class="hero-stat-sub">投放计划 / 问卷链接 / 投放记录</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+
+<!-- ============================================================ -->
+<!-- §1 OVERVIEW                                                   -->
+<!-- ============================================================ -->
+<section id="overview">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §1 Overview</div>
+      <h2 class="section-title">产品概述</h2>
+      <p class="section-subtitle">投放管理系统核心价值与关键概念</p>
+    </div>
+    <span class="section-side-meta">5 模块 · 38 BR · 47 AC</span>
+  </div>
+  <div class="grid grid-2">
+    <div class="card clr-red">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+        <h3 class="card-title">核心问题</h3>
+      </div>
+      <div class="card-desc">1. 如何按国家、车型、绑车时长精准投放 NPS 问卷？<br>2. 如何在 App 端以低打扰方式触达车主并控制显示频率？<br>3. 如何实现 CSI 系统与 App 服务端的数据闭环？</div>
+    </div>
+    <div class="card clr-green">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l5 5L20 7"/></svg></div>
+        <h3 class="card-title">核心目标</h3>
+      </div>
+      <div class="card-desc">1. 支持按多维条件精准筛选目标车主并按比例分配问卷链接。<br>2. 在 App 端以浮标形式低打扰触达用户，支持灵活的显示频率控制。<br>3. 打通 CSI 与 App 服务端的数据链路，实现计划下发、数据回流、完成状态更新。</div>
+    </div>
+  </div>
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">关键特性</h3>
+  <div class="card clr-blue">
+    <div class="feature-tags">
+      <span class="feature-tag clr-slate">🎯 精准分层投放</span>
+      <span class="feature-tag clr-slate">📊 按比例分配问卷</span>
+      <span class="feature-tag clr-slate">🔌 CSI 数据闭环</span>
+      <span class="feature-tag clr-slate">⏰ 凌晨定时下发</span>
+      <span class="feature-tag clr-slate">📱 车控页低打扰浮标</span>
+      <span class="feature-tag clr-slate">🔄 显示频率冷却控制</span>
+      <span class="feature-tag clr-slate">🌐 WebView H5 容器</span>
+      <span class="feature-tag clr-slate">🛡 逻辑删除审计</span>
+    </div>
+  </div>
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">目标用户</h3>
+  <div class="grid grid-3">
+    <div class="card card-hover clr-blue">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/></svg></div>
+        <h3 class="card-title">运营人员</h3>
+      </div>
+      <div class="card-desc">拥有全部权限：可创建/编辑/启用停用/删除投放计划和投放数据，查看/导入/导出/推送投放数据。</div>
+    </div>
+    <div class="card card-hover clr-green">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/></svg></div>
+        <h3 class="card-title">车主用户</h3>
+      </div>
+      <div class="card-desc">已绑定车辆的 GAC APP 用户。在 App 端接收问卷通知、填写并提交 NPS 问卷。</div>
+    </div>
+    <div class="card card-hover clr-orange">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2"/></svg></div>
+        <h3 class="card-title">CSI 系统</h3>
+      </div>
+      <div class="card-desc">外部系统，通过 UOP 透传投放计划主数据至 App 服务端，接收投放数据与问卷完成状态。</div>
+    </div>
+  </div>
+  <h3 style="font-size:1.05rem;font-weight:600;margin:2rem 0 1rem;">术语表</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th style="width:10rem;">术语</th><th style="width:11rem;">英文</th><th>定义</th><th style="width:14rem;">备注</th></tr></thead>
+      <tbody>
+        <tr><td><strong>投放计划</strong></td><td><code>Campaign Plan</code></td><td style="color:var(--fg);">包含国家、车型、问卷 URL 及比例、下发条件等配置的数据单元</td><td style="color:var(--fg-muted);font-size:0.825rem;">Campaign</td></tr>
+        <tr><td><strong>投放数据</strong></td><td><code>Delivery</code></td><td style="color:var(--fg);">实际下发到具体用户的问卷记录，含推送状态与完成状态</td><td style="color:var(--fg-muted);font-size:0.825rem;">CampaignDelivery</td></tr>
+        <tr><td><strong>投放位置</strong></td><td><code>Position</code></td><td style="color:var(--fg);">客户端展示问卷入口的位置</td><td style="color:var(--fg-muted);font-size:0.825rem;">REMOTE_CONTROL_RIGHT_BOTTOM</td></tr>
+        <tr><td><strong>冷却时长</strong></td><td><code>Cool Off</code></td><td style="color:var(--fg);">用户关闭入口后再次显示需要等待的时间，单位小时</td><td style="color:var(--fg-muted);font-size:0.825rem;">0 = 永久不显示</td></tr>
+        <tr><td><strong>显示时长</strong></td><td><code>Display Duration</code></td><td style="color:var(--fg);">用户被下发后可看到入口的天数</td><td style="color:var(--fg-muted);font-size:0.825rem;">start_time ~ end_time（独立字段）</td></tr>
+        <tr><td><strong>推送状态</strong></td><td><code>Push Status</code></td><td style="color:var(--fg);">投放数据同步至 CSI 的状态</td><td style="color:var(--fg-muted);font-size:0.825rem;">NOT_PUSHED / PUSHED / PUSH_FAILED</td></tr>
+        <tr><td><strong>UOP</strong></td><td><code>UOP</code></td><td style="color:var(--fg);">统一运营平台，CSI 与 App 服务端之间的中间层</td><td style="color:var(--fg-muted);font-size:0.825rem;">HTTPS 透传</td></tr>
+        <tr><td><strong>JSBridge</strong></td><td><code>JSBridge</code></td><td style="color:var(--fg);">H5 与 Flutter 原生通信协议</td><td style="color:var(--fg-muted);font-size:0.825rem;">npsSurveyCompleted</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §2 FLOWS — 业务流程（顶部 Tab + 流转胶囊条）                    -->
+<!-- ============================================================ -->
+<section id="flows" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §2 Business Flows</div>
+      <h2 class="section-title">业务流程</h2>
+      <p class="section-subtitle">端到端流转与关键业务流程</p>
+    </div>
+  </div>
+
+  <!-- 端到端流转胶囊条 -->
+  <div class="process-strip">
+    <div class="process-strip-title">核心业务流转</div>
+    <div class="process-strip-flow">
+      <div class="process-step">
+        <div class="process-step-num">1</div>
+        <div class="process-step-name">创建计划</div>
+        <div class="process-step-actor">运营人员 · 05.01</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">2</div>
+        <div class="process-step-name">CSI 透传</div>
+        <div class="process-step-actor">CSI 系统 · 05.01</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">3</div>
+        <div class="process-step-name">定时筛选</div>
+        <div class="process-step-actor">系统任务 · 05.03</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">4</div>
+        <div class="process-step-name">比例分配</div>
+        <div class="process-step-actor">系统任务 · 05.03</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">5</div>
+        <div class="process-step-name">推送 CSI</div>
+        <div class="process-step-actor">系统任务 · 05.02</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">6</div>
+        <div class="process-step-name">查询问卷</div>
+        <div class="process-step-actor">App 客户端 · 05.04</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">7</div>
+        <div class="process-step-name">规则判断</div>
+        <div class="process-step-actor">App 本地 · 05.04</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">8</div>
+        <div class="process-step-name">展示浮标</div>
+        <div class="process-step-actor">App 客户端 · 05.04</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">9</div>
+        <div class="process-step-name">填写提交</div>
+        <div class="process-step-actor">车主用户 · 05.05</div>
+      </div>
+      <div class="process-step">
+        <div class="process-step-num">10</div>
+        <div class="process-step-name">完成回流</div>
+        <div class="process-step-actor">App 服务端 · 05.05</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-top" data-tabs="flows">
+    <button class="tab-btn active" data-tab="flow-biz">📊 业务流程图</button>
+    <button class="tab-btn" data-tab="flow-seq">⏱ 时序图</button>
+  </div>
+
+  <div class="tab-pane active" id="flow-biz">
+    <div class="flowimg">
+      <img src="assets/flowchart/NPS%E9%97%AE%E5%8D%B7%E6%8A%95%E6%94%BE-%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B.png" alt="NPS问卷投放-业务流程" data-zoomable data-cap="NPS问卷投放-业务流程" />
+      <div class="flowimg-caption">NPS问卷投放-业务流程 · 点击查看大图</div>
+    </div>
+  </div>
+  <div class="tab-pane" id="flow-seq">
+    <div class="mermaid-wrap">
+      <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    participant Ops as 运营人员
+    participant CSI as CSI 系统
+    participant BE as App 服务端
+    participant Job as 定时任务
+    participant App as App 客户端
+    participant H5 as CSI H5
+    Ops->>BE: 创建投放计划
+    CSI->>BE: 透传计划
+    BE->>BE: 保存计划
+    Job->>BE: 凌晨执行下发
+    BE->>BE: 筛选用户+分配URL
+    BE->>CSI: 回流传投数据
+    App->>BE: 查询问卷
+    BE->>App: 返回问卷数据
+    App->>App: 判断规则+展示浮标
+    App->>H5: 打开问卷页
+    H5->>App: JSBridge 完成回调
+    App->>BE: 上报完成状态
+      </pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §3 ARCHITECTURE — 功能架构                                     -->
+<!-- ============================================================ -->
+<section id="architecture">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §3 Functional Architecture</div>
+      <h2 class="section-title">功能架构</h2>
+      <p class="section-subtitle">两个层级、5 个模块的功能组织与实现技术</p>
+    </div>
+  </div>
+  <div class="fntree">
+    <div class="fntree-row cols-2">
+      <div class="fntree-layer clr-orange">
+        <div class="fntree-layer-head">
+          <span class="fntree-layer-icon">🏗️</span>
+          <div>
+            <div class="fntree-layer-title">平台层</div>
+            <div class="fntree-layer-sub">运营管理后台 + 服务端</div>
+          </div>
+        </div>
+        <div class="fntree-modules">
+          <div class="fntree-mod">
+            <span class="fntree-mod-id">05.01</span>
+            <span>投放计划管理</span>
+          </div>
+          <div class="fntree-mod">
+            <span class="fntree-mod-id">05.02</span>
+            <span>投放数据管理</span>
+          </div>
+          <div class="fntree-mod">
+            <span class="fntree-mod-id">05.03</span>
+            <span>定时下发任务</span>
+          </div>
+        </div>
+      </div>
+      <div class="fntree-layer clr-blue">
+        <div class="fntree-layer-head">
+          <span class="fntree-layer-icon">📱</span>
+          <div>
+            <div class="fntree-layer-title">车主端业务层</div>
+            <div class="fntree-layer-sub">Flutter 原生 + H5 WebView</div>
+          </div>
+        </div>
+        <div class="fntree-modules">
+          <div class="fntree-mod">
+            <span class="fntree-mod-id">05.04</span>
+            <span>App 问卷入口</span>
+          </div>
+          <div class="fntree-mod">
+            <span class="fntree-mod-id">05.05</span>
+            <span>问卷页</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §4 MODULES — 模块详情（左右联动）                                -->
+<!-- ============================================================ -->
+<section id="modules" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §4 Module Details</div>
+      <h2 class="section-title">模块详情</h2>
+      <p class="section-subtitle">点击左侧模块查看：核心功能、关联实体/API、Permission Code、关键业务规则、原型</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="modules">
+      <div class="splitview-item clr-orange active" data-svtarget="mod-1-1-1">
+        <span class="sv-id">05.01</span>
+        <span class="sv-name">投放计划管理</span>
+      </div>
+      <div class="splitview-item clr-orange" data-svtarget="mod-1-1-2">
+        <span class="sv-id">05.02</span>
+        <span class="sv-name">投放数据管理</span>
+      </div>
+      <div class="splitview-item clr-blue" data-svtarget="mod-1-1-3">
+        <span class="sv-id">05.03</span>
+        <span class="sv-name">定时下发任务</span>
+      </div>
+      <div class="splitview-item clr-green" data-svtarget="mod-1-1-4">
+        <span class="sv-id">05.04</span>
+        <span class="sv-name">App 问卷入口</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="mod-1-1-5">
+        <span class="sv-id">05.05</span>
+        <span class="sv-name">问卷页</span>
+      </div>
+    </div>
+    <div class="splitview-detail">
+      <div class="sv-pane clr-orange active" id="mod-1-1-1">
+        <div class="modhead">
+          <div class="modhead-meta">
+            <span class="badge clr-orange" style="background:var(--c-bg);color:var(--c-strong);border-color:var(--c-border);">模块 05.01</span>
+            <span class="badge badge-success">P0</span>
+            <span class="tag clr-orange">Web CMS</span>
+            <span class="badge badge-neutral">平台层</span>
+          </div>
+          <h3 class="modhead-title">投放计划管理</h3>
+          <p class="modhead-desc">运营管理后台对 投放管理计划进行全生命周期管理，包括列表查询、新建、编辑、查看、启用/停用、删除；同时接收 CSI 系统通过 UOP 透传的投放计划主数据。</p>
+        </div>
+        <div class="modgrid cols-2">
+          <div class="modblock">
+            <h4>📋 核心功能</h4>
+            <ul>
+              <li>投放计划列表查询与筛选</li>
+              <li>新建/编辑/查看投放计划（右侧抽屉）</li>
+              <li>启用/停用投放计划</li>
+              <li>删除投放计划（逻辑删除）</li>
+              <li>接收 CSI 透传的投放计划主数据</li>
+            </ul>
+          </div>
+          <div class="modblock">
+            <h4>🔗 关联实体 / API</h4>
+            <ul>
+              <li><code>Campaign</code></li>
+              <li><code>CampaignUrl</code></li>
+              <li><code>POST /api/v1/campaigns</code></li>
+              <li><code>PUT /api/v1/campaigns/{campaignCode}</code></li>
+              <li><code>GET /api/v1/admin/campaigns</code></li>
+            </ul>
+            <h4 style="margin-top:1rem;">🔐 Permission Code</h4>
+            <ul>
+              <li><code>campaign:view:any</code></li>
+              <li><code>campaign:create:any</code></li>
+              <li><code>campaign:update:any</code></li>
+              <li><code>campaign:delete:any</code></li>
+              <li><code>campaign:enable:any</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>📐 关键业务规则</h4>
+          <ul class="br-list br-list-wrap" data-collapse>
+            <li><span class="br-code">BR-05.01-01</span><span style="flex:1;">投放计划编码 campaign_code 在系统内全局唯一，不可重复；新建后不可修改。CSI 透传更新时以 campaign_code 作为唯一匹配键。</span></li>
+            <li><span class="br-code">BR-05.01-02</span><span style="flex:1;">同一投放计划内所有 URL 分配比例之和必须等于 100%；保存/透传更新时须校验，否则拒绝。</span></li>
+            <li><span class="br-code">BR-05.01-03</span><span style="flex:1;">计划起止时间仅控制定时下发任务的执行窗口，不影响 App 端入口展示；App 端展示依据每个用户的独立投放时间段。</span></li>
+            <li><span class="br-code">BR-05.01-04</span><span style="flex:1;">投放位置、关闭后隐藏时长、每日下发数量、下发条件、显示图标地址等字段由 App 端提供默认值且可修改。</span></li>
+            <li><span class="br-code">BR-05.01-05</span><span style="flex:1;">投放计划支持启用/停用；停用后不再参与新的定时下发，但已生成的投放记录仍按原规则展示。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.01-06</span><span style="flex:1;">投放计划删除采用逻辑删除（deleted = 1），保留审计轨迹；删除后不再参与下发与查询。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.01-07</span><span style="flex:1;">入口图标图片非必填，上传时限制格式为 jpg/png/webp，单张大小 ≤ 3MB。</span></li>
+          </ul>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 2 条 ↓</button>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>✅ 验收标准（AC）</h4>
+          <ul class="ac-list">
+            <li><span class="ac-code">AC-05.01-01</span><span style="flex:1;"><strong>Given</strong> CSI 系统发起有效的投放计划透传请求 <strong>When</strong> App 服务端接收并校验通过 <strong>Then</strong> 投放计划被保存或更新。</span></li>
+            <li><span class="ac-code">AC-05.01-02</span><span style="flex:1;"><strong>Given</strong> 运营人员在管理后台新建投放计划，URL 比例之和为 100% <strong>When</strong> 点击保存 <strong>Then</strong> 计划保存成功并进入列表。</span></li>
+            <li><span class="ac-code">AC-05.01-05</span><span style="flex:1;"><strong>Given</strong> 计划处于启用状态 <strong>When</strong> 运营人员点击停用 <strong>Then</strong> 计划状态变为停用，次日任务不再下发。</span></li>
+            <li><span class="ac-code">AC-05.01-06</span><span style="flex:1;"><strong>Given</strong> URL 比例之和不等于 100% <strong>When</strong> 点击保存 <strong>Then</strong> 系统拒绝并提示"分配比例之和必须等于 100%"。</span></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="modlink clr-orange" data-protoview="assets/prototype/%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-%E6%8A%95%E6%94%BE%E8%AE%A1%E5%88%92%E7%AE%A1%E7%90%86.png" data-protoname="投放计划管理">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            查看原型
+          </button>
+        </div>
+      </div>
+      <div class="sv-pane clr-orange" id="mod-1-1-2">
+        <div class="modhead">
+          <div class="modhead-meta">
+            <span class="badge clr-orange" style="background:var(--c-bg);color:var(--c-strong);border-color:var(--c-border);">模块 05.02</span>
+            <span class="badge badge-success">P0</span>
+            <span class="tag clr-orange">Web CMS</span>
+            <span class="badge badge-neutral">平台层</span>
+          </div>
+          <h3 class="modhead-title">投放数据管理</h3>
+          <p class="modhead-desc">运营管理后台查看与管理 投放管理数据，支持按多维度筛选、导入更新、导出、手动推送至 CSI 以及删除操作。</p>
+        </div>
+        <div class="modgrid cols-2">
+          <div class="modblock">
+            <h4>📋 核心功能</h4>
+            <ul>
+              <li>投放数据列表（按下发时间倒序）</li>
+              <li>多维度筛选（计划名称、手机号、车型、完成状态等）</li>
+              <li>导入投放数据更新问卷信息</li>
+              <li>导出投放数据为 Excel/CSV</li>
+              <li>手动推送投放数据至 CSI</li>
+            </ul>
+          </div>
+          <div class="modblock">
+            <h4>🔗 关联实体 / API</h4>
+            <ul>
+              <li><code>CampaignDelivery</code></li>
+              <li><code>GET /api/v1/admin/campaigns/deliveries</code></li>
+              <li><code>POST /api/v1/admin/campaigns/deliveries/import</code></li>
+              <li><code>POST /api/v1/admin/campaigns/deliveries/export</code></li>
+              <li><code>POST /api/v1/admin/campaigns/deliveries/push</code></li>
+            </ul>
+            <h4 style="margin-top:1rem;">🔐 Permission Code</h4>
+            <ul>
+              <li><code>campaign_delivery:view:any</code></li>
+              <li><code>campaign_delivery:import:any</code></li>
+              <li><code>campaign_delivery:export:any</code></li>
+              <li><code>campaign_delivery:push:any</code></li>
+              <li><code>campaign_delivery:delete:any</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>📐 关键业务规则</h4>
+          <ul class="br-list br-list-wrap" data-collapse>
+            <li><span class="br-code">BR-05.02-01</span><span style="flex:1;">投放数据列表默认按下发时间倒序排列；支持按计划名称/编码、手机号/邮箱、车型、下发时间、完成状态、推送状态筛选。</span></li>
+            <li><span class="br-code">BR-05.02-02</span><span style="flex:1;">列表中的手机号、邮箱等敏感字段须脱敏展示。</span></li>
+            <li><span class="br-code">BR-05.02-03</span><span style="flex:1;">投放时间段由 start_time 和 end_time 两个独立字段定义，与 send_time（下发时间）解耦。</span></li>
+            <li><span class="br-code">BR-05.02-04</span><span style="flex:1;">导入功能根据文件中的 campaign_code + one_id 匹配现有投放记录，更新其问卷 ID、问卷 URL 等字段。</span></li>
+            <li><span class="br-code">BR-05.02-05</span><span style="flex:1;">导出字段与列表字段保持一致；导出文件格式为 Excel 或 CSV，大小限制 ≤ 10MB。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.02-06</span><span style="flex:1;">推送功能仅允许对推送状态为"未推送"或"推送失败"的记录执行。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.02-07</span><span style="flex:1;">推送状态按结果流转：未推送 → 已推送；推送失败可再次手动/自动重试。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.02-08</span><span style="flex:1;">投放记录删除采用逻辑删除（deleted = 1），保留审计轨迹。</span></li>
+          </ul>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 3 条 ↓</button>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>✅ 验收标准（AC）</h4>
+          <ul class="ac-list">
+            <li><span class="ac-code">AC-05.02-01</span><span style="flex:1;"><strong>Given</strong> 存在多条投放记录 <strong>When</strong> 运营人员进入投放数据列表 <strong>Then</strong> 列表按下发时间倒序展示，手机号/邮箱脱敏。</span></li>
+            <li><span class="ac-code">AC-05.02-03</span><span style="flex:1;"><strong>Given</strong> 运营人员上传合规的导入文件 <strong>When</strong> 点击导入 <strong>Then</strong> 系统按 campaign_code + one_id 匹配并更新记录。</span></li>
+            <li><span class="ac-code">AC-05.02-06</span><span style="flex:1;"><strong>Given</strong> 推送失败记录被手动重试 <strong>When</strong> 推送成功 <strong>Then</strong> 状态更新为已推送；失败则保持推送失败。</span></li>
+            <li><span class="ac-code">AC-05.02-07</span><span style="flex:1;"><strong>Given</strong> 运营人员上传格式错误的导入文件 <strong>When</strong> 点击导入 <strong>Then</strong> 系统拒绝并提示格式错误。</span></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="modlink clr-orange" data-protoview="assets/prototype/%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-%E6%8A%95%E6%94%BE%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86.png" data-protoname="投放数据管理">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            查看原型
+          </button>
+        </div>
+      </div>
+      <div class="sv-pane clr-blue" id="mod-1-1-3">
+        <div class="modhead">
+          <div class="modhead-meta">
+            <span class="badge clr-blue" style="background:var(--c-bg);color:var(--c-strong);border-color:var(--c-border);">模块 05.03</span>
+            <span class="badge badge-success">P0</span>
+            <span class="tag clr-blue">Backend</span>
+            <span class="badge badge-neutral">平台层</span>
+          </div>
+          <h3 class="modhead-title">定时下发任务</h3>
+          <p class="modhead-desc">每日凌晨按投放计划配置筛选符合条件的车主用户，按比例分配问卷链接并生成投放记录；随后将投放数据异步回传至 CSI 系统。</p>
+        </div>
+        <div class="modgrid cols-2">
+          <div class="modblock">
+            <h4>📋 核心功能</h4>
+            <ul>
+              <li>凌晨定时执行（xxl-job 分片）</li>
+              <li>按国家/车型/绑车时间筛选用户</li>
+              <li>按 URL 比例随机分配问卷链接</li>
+              <li>生成用户维度投放记录</li>
+              <li>异步推送投放数据至 CSI</li>
+            </ul>
+          </div>
+          <div class="modblock">
+            <h4>🔗 关联实体 / API</h4>
+            <ul>
+              <li><code>Campaign</code></li>
+              <li><code>CampaignUrl</code></li>
+              <li><code>CampaignDelivery</code></li>
+              <li><code>POST /api/v1/campaigns/deliveries/sync</code></li>
+            </ul>
+            <h4 style="margin-top:1rem;">🔐 Permission Code</h4>
+            <ul>
+              <li><em>服务端任务，不绑定 Permission Code</em></li>
+            </ul>
+          </div>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>📐 关键业务规则</h4>
+          <ul class="br-list br-list-wrap" data-collapse>
+            <li><span class="br-code">BR-05.03-01</span><span style="flex:1;">定时任务每日凌晨执行一次，默认 02:00，支持 xxl-job 分片执行。</span></li>
+            <li><span class="br-code">BR-05.03-02</span><span style="flex:1;">仅处理启用状态且当前日期在起止时间范围内的投放计划。</span></li>
+            <li><span class="br-code">BR-05.03-03</span><span style="flex:1;">按计划的 country、model 以及 dispatch_condition 筛选用户。</span></li>
+            <li><span class="br-code">BR-05.03-04</span><span style="flex:1;">候选用户按绑车时间由近到远排序，按 daily_dispatch_limit 截断。</span></li>
+            <li><span class="br-code">BR-05.03-05</span><span style="flex:1;">按 URL 比例随机分配问卷链接；同一投放计划对同一用户仅生成一条记录。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.03-06</span><span style="flex:1;">投放记录生成时设置 send_time，start_time/end_time 独立定义投放时间段。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.03-07</span><span style="flex:1;">投放记录生成后异步推送至 CSI；失败时标记 PUSH_FAILED 并支持重试。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.03-08</span><span style="flex:1;">若某计划当日无符合条件的用户，则不生成任何记录，任务正常结束。</span></li>
+          </ul>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 3 条 ↓</button>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>✅ 验收标准（AC）</h4>
+          <ul class="ac-list">
+            <li><span class="ac-code">AC-05.03-01</span><span style="flex:1;"><strong>Given</strong> 到达配置的执行时间 <strong>When</strong> xxl-job 触发定时任务 <strong>Then</strong> 任务正常启动并按计划执行。</span></li>
+            <li><span class="ac-code">AC-05.03-03</span><span style="flex:1;"><strong>Given</strong> 计划配置了下发条件 <strong>When</strong> 任务筛选用户 <strong>Then</strong> 仅绑车时间满足条件的用户进入候选池。</span></li>
+            <li><span class="ac-code">AC-05.03-05</span><span style="flex:1;"><strong>Given</strong> 截断后用户已确定 <strong>When</strong> 分配问卷链接 <strong>Then</strong> 按 URL 比例分配且同一计划对同一用户仅生成一条记录。</span></li>
+            <li><span class="ac-code">AC-05.03-07</span><span style="flex:1;"><strong>Given</strong> 投放记录已生成 <strong>When</strong> 异步推送至 CSI <strong>Then</strong> 成功则标记 PUSHED，失败则标记 PUSH_FAILED。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-green" id="mod-1-1-4">
+        <div class="modhead">
+          <div class="modhead-meta">
+            <span class="badge clr-green" style="background:var(--c-bg);color:var(--c-strong);border-color:var(--c-border);">模块 05.04</span>
+            <span class="badge badge-success">P0</span>
+            <span class="tag clr-green">Flutter</span>
+            <span class="badge badge-neutral">业务层</span>
+          </div>
+          <h3 class="modhead-title">App 问卷入口</h3>
+          <p class="modhead-desc">在 GAC APP 车控页右下角以浮标形式展示 NPS 问卷入口；支持用户关闭入口，并按冷却规则控制再次显示。</p>
+        </div>
+        <div class="modgrid cols-2">
+          <div class="modblock">
+            <h4>📋 核心功能</h4>
+            <ul>
+              <li>查询用户有效问卷数据</li>
+              <li>本地 coolOff 显示规则判断</li>
+              <li>浮标展示与关闭交互</li>
+              <li>持久化各位置下次可显示时间</li>
+            </ul>
+          </div>
+          <div class="modblock">
+            <h4>🔗 关联实体 / API</h4>
+            <ul>
+              <li><code>CampaignDelivery</code></li>
+              <li><code>CampaignSurveyVO</code></li>
+              <li><code>GET /api/v1/campaigns/user/surveys</code></li>
+            </ul>
+            <h4 style="margin-top:1rem;">🔐 Permission Code</h4>
+            <ul>
+              <li><em>车主身份隐式校验（通过 one_id 隔离）</em></li>
+            </ul>
+          </div>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>📐 关键业务规则</h4>
+          <ul class="br-list br-list-wrap" data-collapse>
+            <li><span class="br-code">BR-05.04-01</span><span style="flex:1;">客户端在获取车辆信息完成后调用问卷查询接口，可返回多条不同位置的投放记录。</span></li>
+            <li><span class="br-code">BR-05.04-02</span><span style="flex:1;">问卷数据返回规则：计划启用、当前用户存在已下发且未完成的问卷、当前时间在用户投放时间段内。</span></li>
+            <li><span class="br-code">BR-05.04-03</span><span style="flex:1;">问卷入口显示规则：服务端返回了问卷数据、本地 coolOff 时间已到期、该位置未处于永久关闭状态。</span></li>
+            <li><span class="br-code">BR-05.04-04</span><span style="flex:1;">客户端以展示位置为维度，在本地持久化存储各位置的下次可显示时间戳（APP_AD_COOL_OFF_MAP）。</span></li>
+            <li><span class="br-code">BR-05.04-05</span><span style="flex:1;">用户关闭浮标时根据接口返回的 cool_off 计算下次可显示时间；cool_off = 0 表示永久不再显示。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.04-06</span><span style="flex:1;">用户完成问卷或投放时间段过期后，对应投放记录不再返回，浮标自动隐藏。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.04-07</span><span style="flex:1;">同一位置存在多条有效投放记录时，关闭当前不影响其他记录。</span></li>
+          </ul>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 2 条 ↓</button>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>✅ 验收标准（AC）</h4>
+          <ul class="ac-list">
+            <li><span class="ac-code">AC-05.04-01</span><span style="flex:1;"><strong>Given</strong> 用户进入车控页 <strong>When</strong> 调用问卷查询接口 <strong>Then</strong> 返回当前用户有效的问卷数据列表。</span></li>
+            <li><span class="ac-code">AC-05.04-03</span><span style="flex:1;"><strong>Given</strong> 客户端已获得问卷数据且 coolOff 已到期 <strong>When</strong> 进入车控页 <strong>Then</strong> 在指定位置展示 NPS 浮标。</span></li>
+            <li><span class="ac-code">AC-05.04-04</span><span style="flex:1;"><strong>Given</strong> 用户关闭浮标 <strong>When</strong> 客户端处理关闭事件 <strong>Then</strong> 按 cool_off 计算并持久化下次可显示时间。</span></li>
+            <li><span class="ac-code">AC-05.04-08</span><span style="flex:1;"><strong>Given</strong> cool_off 配置为关闭后不再显示 <strong>When</strong> 用户关闭浮标 <strong>Then</strong> 该位置后续不再展示该计划入口。</span></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="modlink clr-green" data-protoview="assets/prototype/App%E7%AB%AFNPS%E9%97%AE%E5%8D%B7%E5%85%A5%E5%8F%A3.png" data-protoname="App 问卷入口">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            查看原型
+          </button>
+        </div>
+      </div>
+      <div class="sv-pane clr-teal" id="mod-1-1-5">
+        <div class="modhead">
+          <div class="modhead-meta">
+            <span class="badge clr-teal" style="background:var(--c-bg);color:var(--c-strong);border-color:var(--c-border);">模块 05.05</span>
+            <span class="badge badge-success">P0</span>
+            <span class="tag clr-teal">H5 WebView</span>
+            <span class="badge badge-neutral">业务层</span>
+          </div>
+          <h3 class="modhead-title">问卷页</h3>
+          <p class="modhead-desc">App 以 WebView 容器加载 CSI 系统提供的问卷 H5；用户填写后 H5 调用 App JSBridge，由 App 上报完成状态并隐藏浮标。</p>
+        </div>
+        <div class="modgrid cols-2">
+          <div class="modblock">
+            <h4>📋 核心功能</h4>
+            <ul>
+              <li>WebView 加载 CSI H5 问卷页</li>
+              <li>H5 内部 Submit 触发 JSBridge 回调</li>
+              <li>App 调用完成接口上报状态</li>
+              <li>幂等处理重复完成上报</li>
+            </ul>
+          </div>
+          <div class="modblock">
+            <h4>🔗 关联实体 / API</h4>
+            <ul>
+              <li><code>CampaignDelivery</code></li>
+              <li><code>POST /api/v1/campaigns/user/surveys/complete</code></li>
+            </ul>
+            <h4 style="margin-top:1rem;">🔐 Permission Code</h4>
+            <ul>
+              <li><em>车主身份隐式校验</em></li>
+            </ul>
+          </div>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>📐 关键业务规则</h4>
+          <ul class="br-list br-list-wrap" data-collapse>
+            <li><span class="br-code">BR-05.05-01</span><span style="flex:1;">问卷页由 CSI 系统提供的 H5 URL 渲染，App 仅做 WebView 容器。</span></li>
+            <li><span class="br-code">BR-05.05-02</span><span style="flex:1;">提交按钮位于 H5 内部；提交时 H5 须调用 App 原生 JSBridge 方法 npsSurveyCompleted。</span></li>
+            <li><span class="br-code">BR-05.05-03</span><span style="flex:1;">App 收到 JSBridge 回调后调用服务端完成接口；成功后将对应投放记录标记为已完成并隐藏浮标。</span></li>
+            <li><span class="br-code">BR-05.05-04</span><span style="flex:1;">完成接口需幂等处理；已完成的记录再次调用时返回成功，不重复更新。</span></li>
+            <li><span class="br-code">BR-05.05-05</span><span style="flex:1;">WebView 加载 H5 失败时显示重试页面，用户可点击重试或返回车控页。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.05-06</span><span style="flex:1;">H5 与 App 的通信须兼容 WebView 安全区、返回手势及主题同步规范。</span></li>
+          </ul>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 1 条 ↓</button>
+        </div>
+        <div class="modblock" style="margin-top:1rem;">
+          <h4>✅ 验收标准（AC）</h4>
+          <ul class="ac-list">
+            <li><span class="ac-code">AC-05.05-01</span><span style="flex:1;"><strong>Given</strong> 用户从浮标进入问卷页 <strong>When</strong> WebView 加载 CSI H5 URL <strong>Then</strong> 页面正确渲染问卷内容。</span></li>
+            <li><span class="ac-code">AC-05.05-03</span><span style="flex:1;"><strong>Given</strong> App 收到 JSBridge 完成回调 <strong>When</strong> 调用完成接口成功 <strong>Then</strong> 服务端将投放记录标记为已完成。</span></li>
+            <li><span class="ac-code">AC-05.05-04</span><span style="flex:1;"><strong>Given</strong> 用户已完成问卷 <strong>When</strong> H5 再次触发完成回调 <strong>Then</strong> 服务端幂等返回成功。</span></li>
+            <li><span class="ac-code">AC-05.05-05</span><span style="flex:1;"><strong>Given</strong> WebView 加载 H5 失败 <strong>When</strong> 页面显示重试页 <strong>Then</strong> 用户可点击重试或返回车控页。</span></li>
+          </ul>
+        </div>
+        <div style="margin-top:1rem;">
+          <button class="modlink clr-teal" data-protoview="assets/prototype/App%E7%AB%AFNPS%E9%97%AE%E5%8D%B7%E5%85%A5%E5%8F%A3.png" data-protoname="问卷页">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            查看原型
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §5 PROTOTYPES — 原型预览                                       -->
+<!-- ============================================================ -->
+<section id="prototypes">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §5 Prototype Preview</div>
+      <h2 class="section-title">原型预览</h2>
+      <p class="section-subtitle">点击图片查看大图。可按层级筛选。</p>
+    </div>
+  </div>
+  <div class="proto-filter" data-protofilter>
+    <button class="proto-filter-btn active" data-filter="all">全部 <span style="opacity:0.6;">3</span></button>
+    <button class="proto-filter-btn" data-filter="admin">后台管理 <span style="opacity:0.6;">2</span></button>
+    <button class="proto-filter-btn" data-filter="app">App 端 <span style="opacity:0.6;">1</span></button>
+  </div>
+  <div class="proto-grid" data-protogrid>
+    <div class="proto-card" data-cat="admin">
+      <div class="proto-card-img"><img src="assets/prototype/%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-%E6%8A%95%E6%94%BE%E8%AE%A1%E5%88%92%E7%AE%A1%E7%90%86.png" alt="管理后台-投放计划管理" data-zoomable data-cap="管理后台-投放计划管理" /></div>
+      <div class="proto-card-meta">
+        <div class="proto-card-name">投放计划管理</div>
+        <div class="proto-card-mod">模块 05.01 · Web CMS</div>
+      </div>
+    </div>
+    <div class="proto-card" data-cat="admin">
+      <div class="proto-card-img"><img src="assets/prototype/%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0-%E6%8A%95%E6%94%BE%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86.png" alt="管理后台-投放数据管理" data-zoomable data-cap="管理后台-投放数据管理" /></div>
+      <div class="proto-card-meta">
+        <div class="proto-card-name">投放数据管理</div>
+        <div class="proto-card-mod">模块 05.02 · Web CMS</div>
+      </div>
+    </div>
+    <div class="proto-card" data-cat="app">
+      <div class="proto-card-img"><img src="assets/prototype/App%E7%AB%AFNPS%E9%97%AE%E5%8D%B7%E5%85%A5%E5%8F%A3.png" alt="App端NPS问卷入口" data-zoomable data-cap="App端NPS问卷入口" /></div>
+      <div class="proto-card-meta">
+        <div class="proto-card-name">App 端 NPS 问卷入口</div>
+        <div class="proto-card-mod">模块 05.04 / 05.05 · Flutter</div>
+      </div>
+    </div>
+  </div>
+  <div class="proto-stats">
+    <div class="proto-stat clr-orange">
+      <div class="proto-stat-value">2</div>
+      <div class="proto-stat-label">管理后台</div>
+    </div>
+    <div class="proto-stat clr-blue">
+      <div class="proto-stat-value">1</div>
+      <div class="proto-stat-label">App 端</div>
+    </div>
+    <div class="proto-stat clr-slate">
+      <div class="proto-stat-value">3</div>
+      <div class="proto-stat-label">总计</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §6 ROLES — 角色与权限（左侧 Tab）                                -->
+<!-- ============================================================ -->
+<section id="roles" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §6 Roles &amp; Permissions</div>
+      <h2 class="section-title">角色与权限</h2>
+      <p class="section-subtitle">角色定义、权限矩阵、角色规则、Permission Code 注册表</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="roles">
+      <div class="splitview-item clr-indigo active" data-svtarget="roles-def">
+        <span class="sv-icon">👤</span>
+        <span class="sv-name">角色定义</span>
+      </div>
+      <div class="splitview-item clr-indigo" data-svtarget="roles-matrix">
+        <span class="sv-icon">📊</span>
+        <span class="sv-name">权限矩阵</span>
+      </div>
+      <div class="splitview-item clr-indigo" data-svtarget="roles-rules">
+        <span class="sv-icon">📋</span>
+        <span class="sv-name">角色规则</span>
+      </div>
+      <div class="splitview-item clr-indigo" data-svtarget="roles-codes">
+        <span class="sv-icon">🔐</span>
+        <span class="sv-name">Permission Code</span>
+      </div>
+    </div>
+    <div class="splitview-detail">
+      <div class="sv-pane clr-indigo active" id="roles-def">
+        <div class="card clr-indigo">
+          <div class="grid grid-2">
+            <div class="card clr-blue" style="border:1px solid var(--c-border);">
+              <h4 style="margin-bottom:0.5rem;">👤 运营人员</h4>
+              <p style="font-size:0.85rem;color:var(--fg-muted);">拥有全部操作权限（含删除），可创建/编辑/启用停用计划，可查看/导入/导出/推送/删除投放数据。系统分配。</p>
+            </div>
+            <div class="card clr-purple" style="border:1px solid var(--c-border);">
+              <h4 style="margin-bottom:0.5rem;">👤 车主用户</h4>
+              <p style="font-size:0.85rem;color:var(--fg-muted);">GAC APP 注册用户且已绑车，在 App 端接收问卷并填写。</p>
+            </div>
+            <div class="card clr-orange" style="border:1px solid var(--c-border);">
+              <h4 style="margin-bottom:0.5rem;">🔌 CSI 系统</h4>
+              <p style="font-size:0.85rem;color:var(--fg-muted);">外部系统，通过 UOP 透传计划与接收数据，服务间密钥认证。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sv-pane clr-indigo" id="roles-matrix">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>操作</th><th>运营人员</th><th>车主用户</th><th>CSI 系统</th></tr></thead>
+            <tbody>
+              <tr><td>查看投放计划</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>创建投放计划</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>编辑投放计划</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>删除投放计划</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>启用/停用计划</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>查看投放数据</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>导入投放数据</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>导出投放数据</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>推送投放数据</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>删除投放数据</td><td>✓</td><td>-</td><td>-</td></tr>
+              <tr><td>查询个人问卷</td><td>-</td><td>-</td><td>✓</td><td>-</td></tr>
+              <tr><td>上报问卷完成</td><td>-</td><td>-</td><td>✓</td><td>-</td></tr>
+              <tr><td>透传投放计划</td><td>-</td><td>-</td><td>-</td><td>✓</td></tr>
+              <tr><td>接收投放数据</td><td>-</td><td>-</td><td>-</td><td>✓</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="sv-pane clr-indigo" id="roles-rules">
+        <div class="card clr-indigo">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>RR-01</strong> · 运营人员拥有全部操作权限（含删除）；车主用户只能查询和操作自己的问卷数据。</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>RR-02</strong> · 车主用户只能查询和操作自己的问卷数据，禁止访问其他用户投放记录。</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>RR-03</strong> · CSI 系统通过服务间密钥认证，不接受外部直接调用。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-indigo" id="roles-codes">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:14rem;">Permission Code</th><th style="width:8rem;">含义</th><th>默认角色</th></tr></thead>
+            <tbody>
+              <tr><td><code>campaign:view:any</code></td><td>查看任意投放计划</td><td>运营人员</td></tr>
+              <tr><td><code>campaign:create:any</code></td><td>创建投放计划</td><td>运营人员</td></tr>
+              <tr><td><code>campaign:update:any</code></td><td>更新投放计划</td><td>运营人员</td></tr>
+              <tr><td><code>campaign:delete:any</code></td><td>删除投放计划</td><td>运营人员</td></tr>
+              <tr><td><code>campaign:enable:any</code></td><td>启用/停用投放计划</td><td>运营人员</td></tr>
+              <tr><td><code>campaign_delivery:view:any</code></td><td>查看投放数据</td><td>运营人员</td></tr>
+              <tr><td><code>campaign_delivery:import:any</code></td><td>导入投放数据</td><td>运营人员</td></tr>
+              <tr><td><code>campaign_delivery:export:any</code></td><td>导出投放数据</td><td>运营人员</td></tr>
+              <tr><td><code>campaign_delivery:push:any</code></td><td>推送投放数据至 CSI</td><td>运营人员</td></tr>
+              <tr><td><code>campaign_delivery:delete:any</code></td><td>删除投放数据</td><td>运营人员</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §7 RULES — 全局规范（左侧 Tab）                                  -->
+<!-- ============================================================ -->
+<section id="rules">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §7 Global Rules</div>
+      <h2 class="section-title">全局规范</h2>
+      <p class="section-subtitle">跨模块的全局规则、性能指标与非功能性需求</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="rules">
+      <div class="splitview-item clr-rose active" data-svtarget="rules-auth">
+        <span class="sv-icon">🔑</span>
+        <span class="sv-name">认证与会话</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-perm">
+        <span class="sv-icon">🔐</span>
+        <span class="sv-name">权限控制</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-page">
+        <span class="sv-icon">📄</span>
+        <span class="sv-name">分页规则</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-notify">
+        <span class="sv-icon">🔔</span>
+        <span class="sv-name">通知规则</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-content">
+        <span class="sv-icon">📝</span>
+        <span class="sv-name">内容规范</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-errors">
+        <span class="sv-icon">⚠️</span>
+        <span class="sv-name">错误处理</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-audit">
+        <span class="sv-icon">📋</span>
+        <span class="sv-name">审计日志</span>
+      </div>
+      <div class="splitview-item clr-rose" data-svtarget="rules-perf">
+        <span class="sv-icon">⚡</span>
+        <span class="sv-name">性能与安全</span>
+      </div>
+    </div>
+    <div class="splitview-detail">
+      <div class="sv-pane clr-rose active" id="rules-auth">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-AUTH-01</strong> · 管理后台使用 httpOnly Cookie + SameSite=Strict 认证；App 客户端使用 JWT Bearer Token。</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-AUTH-02</strong> · 服务间调用须携带 X-Internal-Key，Gateway 拒绝外部请求携带该 Header。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-perm">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-PERM-01</strong> · 后端使用 @SaCheckPermission 注解校验 Permission Code，禁止在 Controller 硬编码角色判断。</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-PERM-02</strong> · 车主端接口只能操作当前登录用户自己的投放记录。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-page">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-PAGE-01</strong> · 管理后台使用传统 page/pageSize 分页，默认 20 条/页，最大 100 条/页。</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-PAGE-02</strong> · App 客户端列表接口如需分页，使用 cursor 分页。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-notify">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-NOTIFY-01</strong> · 投放数据批量推送失败时，向运营人员发送站内通知或邮件。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-content">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-CONTENT-01</strong> · 计划名称、计划编码等文本字段须做 XSS 转义与长度校验。</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-CONTENT-02</strong> · 入口图标图片限制 jpg/png/webp，单张 ≤ 3MB。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-errors">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-ERROR-01</strong> · 统一返回 {code, message, data, traceId, timestamp} 结构；业务错误码见 design/错误码.md。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-audit">
+        <div class="card clr-rose">
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span><strong>GR-AUDIT-01</strong> · 所有运营人员对投放计划与投放数据的写操作写入审计日志（操作人、类型、资源 ID、变更前后值、时间、IP），保留 1 年。</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="sv-pane clr-rose" id="rules-perf">
+        <div class="card clr-rose">
+          <h4 style="margin-bottom:1rem;font-size:0.9rem;">⚡ 性能目标</h4>
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>管理后台列表加载 ≤ 500ms (P95)</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>用户问卷查询接口 ≤ 200ms (P95)</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>定时下发任务 1 小时内完成</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>投放数据导出 ≤ 30s（10 万条以内）</span></li>
+          </ul>
+          <h4 style="margin:1rem 0 0.5rem;font-size:0.9rem;">🛡 安全要求</h4>
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>手机号/邮箱在管理后台列表中脱敏展示</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>导入/导出文件格式校验与大小限制（≤ 10MB）</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>CSI 透传接口仅允许服务间调用，须校验 X-Internal-Key</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §8 DESIGN — 方案设计（左侧 Tab）                                 -->
+<!-- ============================================================ -->
+<section id="design" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §8 Solution Design</div>
+      <h2 class="section-title">方案设计</h2>
+      <p class="section-subtitle">技术架构、数据模型、部署拓扑、关键决策、错误码</p>
+    </div>
+  </div>
+  <div class="splitview">
+    <div class="splitview-list" data-sv="design">
+      <div class="splitview-item clr-teal active" data-svtarget="design-arch">
+        <span class="sv-icon">🏛️</span>
+        <span class="sv-name">技术架构</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-data">
+        <span class="sv-icon">🗄️</span>
+        <span class="sv-name">数据模型</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-deploy">
+        <span class="sv-icon">🚀</span>
+        <span class="sv-name">部署拓扑</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-decisions">
+        <span class="sv-icon">⚖️</span>
+        <span class="sv-name">关键决策</span>
+      </div>
+      <div class="splitview-item clr-teal" data-svtarget="design-errors">
+        <span class="sv-icon">⚠️</span>
+        <span class="sv-name">错误码</span>
+      </div>
+    </div>
+    <div class="splitview-detail">
+      <!-- 技术架构 -->
+      <div class="sv-pane clr-teal active" id="design-arch">
+        <h4 style="margin-bottom:0.75rem;color:var(--fg-muted);">分层架构</h4>
+        <div class="arch-layer-card clr-blue">
+          <div class="arch-layer-tag">客户端层</div>
+          <div class="arch-layer-content">Flutter 原生（车控页浮标入口）+ H5 WebView（问卷页 CSI H5 容器）+ Vue 3 + Ant Design Vue（运营管理后台）</div>
+        </div>
+        <div class="arch-layer-card clr-green">
+          <div class="arch-layer-tag">服务层</div>
+          <div class="arch-layer-content">Spring Boot 3.2 + MyBatis Plus 3.5 + xxl-job 2.4（定时下发任务）</div>
+        </div>
+        <div class="arch-layer-card clr-purple">
+          <div class="arch-layer-tag">数据层</div>
+          <div class="arch-layer-content">MySQL 8.0（主库）+ Redis 7.x（缓存）+ RabbitMQ 3.12（异步推送 CSI）</div>
+        </div>
+        <div class="arch-layer-card clr-orange">
+          <div class="arch-layer-tag">外部集成</div>
+          <div class="arch-layer-content">CSI 系统（UOP 透传）+ 用户服务 / 车辆服务 / 文件服务（Feign 复用）</div>
+        </div>
+        <h4 style="margin:1.25rem 0 0.75rem;color:var(--fg-muted);">核心技术栈</h4>
+        <div class="grid grid-3">
+          <div class="card clr-blue" style="padding:1rem;">
+            <h4 style="font-size:0.85rem;margin-bottom:0.5rem;">🖥 管理后台</h4>
+            <p style="font-size:0.8rem;color:var(--fg-muted);">Vue 3 + Ant Design Vue 4.x<br/>Pinia 2.x + TypeScript</p>
+          </div>
+          <div class="card clr-green" style="padding:1rem;">
+            <h4 style="font-size:0.85rem;margin-bottom:0.5rem;">📱 App 客户端</h4>
+            <p style="font-size:0.8rem;color:var(--fg-muted);">Flutter 3.x + Dart 3.x<br/>webview_flutter 4.x</p>
+          </div>
+          <div class="card clr-orange" style="padding:1rem;">
+            <h4 style="font-size:0.85rem;margin-bottom:0.5rem;">⚙ 服务端</h4>
+            <p style="font-size:0.8rem;color:var(--fg-muted);">Spring Boot 3.2 + JDK 17<br/>MyBatis Plus + xxl-job</p>
+          </div>
+        </div>
+      </div>
+      <!-- 数据模型 -->
+      <div class="sv-pane clr-teal" id="design-data">
+        <h4 style="margin-bottom:0.75rem;color:var(--fg-muted);">3 个核心实体</h4>
+        <div class="grid grid-2" style="gap:1rem;">
+          <div class="entity-card clr-blue">
+            <div class="entity-card-head">
+              <div class="entity-name-block">
+                <strong class="entity-name">Campaign</strong>
+                <span class="entity-name-cn">（投放计划）</span>
+              </div>
+              <div class="entity-rel">
+                <span class="entity-rel-tag">1:N → Url</span>
+                <span class="entity-rel-tag">1:N → Delivery</span>
+              </div>
+            </div>
+            <div class="entity-card-meta">表名 <code>t_campaign</code></div>
+            <table class="entity-fields">
+              <tr><td class="ef-name">id</td><td class="ef-type">bigint PK</td><td class="ef-desc">自增主键</td></tr>
+              <tr><td class="ef-name">campaign_code</td><td class="ef-type">VARCHAR(64) UK</td><td class="ef-desc">计划编码，全局唯一</td></tr>
+              <tr><td class="ef-name">campaign_name</td><td class="ef-type">VARCHAR(200)</td><td class="ef-desc">计划名称</td></tr>
+              <tr><td class="ef-name">country / model</td><td class="ef-type">VARCHAR</td><td class="ef-desc">国家 / 车型筛选维度</td></tr>
+              <tr><td class="ef-name">position</td><td class="ef-type">VARCHAR(64)</td><td class="ef-desc">REMOTE_CONTROL_RIGHT_BOTTOM / SHOWROOM_POPUP</td></tr>
+              <tr><td class="ef-name">cool_off_hours</td><td class="ef-type">INT</td><td class="ef-desc">关闭后隐藏时长（0 = 永久不显示）</td></tr>
+              <tr><td class="ef-name">enabled</td><td class="ef-type">TINYINT</td><td class="ef-desc">启用状态: 1=启用 0=停用</td></tr>
+              <tr><td class="ef-name">deleted</td><td class="ef-type">TINYINT</td><td class="ef-desc">逻辑删除标记</td></tr>
+              <tr><td class="ef-name">created_at</td><td class="ef-type">TIMESTAMPTZ</td><td class="ef-desc">创建时间</td></tr>
+            </table>
+          </div>
+          <div class="entity-card clr-green">
+            <div class="entity-card-head">
+              <div class="entity-name-block">
+                <strong class="entity-name">CampaignUrl</strong>
+                <span class="entity-name-cn">（计划问卷链接）</span>
+              </div>
+              <div class="entity-rel">
+                <span class="entity-rel-tag">N:1 → Plan</span>
+              </div>
+            </div>
+            <div class="entity-card-meta">表名 <code>t_campaign_url</code></div>
+            <table class="entity-fields">
+              <tr><td class="ef-name">id</td><td class="ef-type">bigint PK</td><td class="ef-desc">自增主键</td></tr>
+              <tr><td class="ef-name">campaign_id</td><td class="ef-type">bigint FK</td><td class="ef-desc">关联投放计划</td></tr>
+              <tr><td class="ef-name">url_code</td><td class="ef-type">VARCHAR(64)</td><td class="ef-desc">问卷 URL ID，如 NPS-1001</td></tr>
+              <tr><td class="ef-name">url</td><td class="ef-type">VARCHAR(500)</td><td class="ef-desc">CSI H5 问卷地址</td></tr>
+              <tr><td class="ef-name">percentage</td><td class="ef-type">INT</td><td class="ef-desc">分配比例（0-100），同计划内须和为100</td></tr>
+              <tr><td class="ef-name">deleted</td><td class="ef-type">TINYINT</td><td class="ef-desc">逻辑删除标记</td></tr>
+              <tr><td class="ef-name">created_at</td><td class="ef-type">TIMESTAMPTZ</td><td class="ef-desc">创建时间</td></tr>
+            </table>
+          </div>
+          <div class="entity-card clr-orange">
+            <div class="entity-card-head">
+              <div class="entity-name-block">
+                <strong class="entity-name">CampaignDelivery</strong>
+                <span class="entity-name-cn">（投放数据）</span>
+              </div>
+              <div class="entity-rel">
+                <span class="entity-rel-tag">N:1 → Plan</span>
+              </div>
+            </div>
+            <div class="entity-card-meta">表名 <code>t_campaign_delivery</code></div>
+            <table class="entity-fields">
+              <tr><td class="ef-name">id</td><td class="ef-type">bigint PK</td><td class="ef-desc">自增主键</td></tr>
+              <tr><td class="ef-name">campaign_id</td><td class="ef-type">bigint FK</td><td class="ef-desc">关联投放计划</td></tr>
+              <tr><td class="ef-name">one_id</td><td class="ef-type">VARCHAR(64) IDX</td><td class="ef-desc">用户唯一标识</td></tr>
+              <tr><td class="ef-name">url_code / url</td><td class="ef-type">VARCHAR</td><td class="ef-desc">实际分配的问卷 ID 和地址</td></tr>
+              <tr><td class="ef-name">send_time</td><td class="ef-type">TIMESTAMPTZ</td><td class="ef-desc">下发时间（问卷实际下发的时间）</td></tr>
+              <tr><td class="ef-name">start_time</td><td class="ef-type">TIMESTAMPTZ</td><td class="ef-desc">投放开始时间</td></tr>
+              <tr><td class="ef-name">end_time</td><td class="ef-type">TIMESTAMPTZ</td><td class="ef-desc">投放结束时间</td></tr>
+              <tr><td class="ef-name">completed</td><td class="ef-type">TINYINT</td><td class="ef-desc">是否完成: 1=是 0=否</td></tr>
+              <tr><td class="ef-name">push_status</td><td class="ef-type">VARCHAR(32)</td><td class="ef-desc">NOT_PUSHED / PUSHED / PUSH_FAILED</td></tr>
+              <tr><td class="ef-name">deleted</td><td class="ef-type">TINYINT</td><td class="ef-desc">逻辑删除标记</td></tr>
+              <tr><td class="ef-name">created_at</td><td class="ef-type">TIMESTAMPTZ</td><td class="ef-desc">创建时间</td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="mermaid-wrap" style="margin-top:1rem;">
+          <pre class="mermaid">
+stateDiagram-v2
+    [*] --> ENABLED : 创建/启用
+    ENABLED --> DISABLED : 运营停用
+    DISABLED --> ENABLED : 运营启用
+    ENABLED --> DELETED : 逻辑删除
+    DISABLED --> DELETED : 逻辑删除
+          </pre>
+        </div>
+        <div class="mermaid-wrap" style="margin-top:0.75rem;">
+          <pre class="mermaid">
+stateDiagram-v2
+    [*] --> NOT_PUSHED : 生成投放记录
+    NOT_PUSHED --> PUSHED : 推送成功
+    NOT_PUSHED --> PUSH_FAILED : 推送失败
+    PUSH_FAILED --> PUSHED : 重试成功
+    PUSH_FAILED --> PUSH_FAILED : 重试失败
+          </pre>
+        </div>
+      </div>
+      <!-- 部署拓扑 -->
+      <div class="sv-pane clr-teal" id="design-deploy">
+        <div class="card clr-teal">
+          <h4 style="margin-bottom:1rem;font-size:0.9rem;">部署要点</h4>
+          <ul class="checklist">
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>campaign-service 作为独立微服务部署于 K8s 集群，通过 Istio Ingress Gateway 暴露接口</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>管理后台构建为 Vue 3 SPA，部署至 Nginx 静态资源服务器</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>App 端问卷入口由 GAC APP 统一发布，WebView 内的 H5 由 CSI 系统独立发布</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>xxl-job 调度器独立部署，凌晨定时任务分片广播执行</span></li>
+            <li><span class="check-icon info" style="background:var(--c-bg);color:var(--c-strong);">·</span><span>Redis 集群模式 + MySQL 主从架构保障高可用</span></li>
+          </ul>
+        </div>
+      </div>
+      <!-- 关键决策 -->
+      <div class="sv-pane clr-teal" id="design-decisions">
+        <div class="grid grid-2">
+          <div class="decision-card clr-blue">
+            <div class="decision-head"><div class="decision-num">1</div><h3 class="decision-title">App 端入口用 Flutter 原生还是 H5？</h3></div>
+            <div class="decision-choice">Flutter 原生</div>
+            <div class="decision-reason">车控页为 Flutter 原生页面，浮标叠加为 light-weight widget；问卷内容由 CSI 独立 H5 提供，App 仅做 WebView 容器。两者各取所长。</div>
+          </div>
+          <div class="decision-card clr-green">
+            <div class="decision-head"><div class="decision-num">2</div><h3 class="decision-title">投放数据推送失败如何处理？</h3></div>
+            <div class="decision-choice">PUSH_FAILED + 手动重试</div>
+            <div class="decision-reason">标记推送失败状态并记录日志，支持运营人员在管理后台手动重试推送，同时支持定时自动重试。</div>
+          </div>
+          <div class="decision-card clr-purple">
+            <div class="decision-head"><div class="decision-num">3</div><h3 class="decision-title">删除是物理删除还是逻辑删除？</h3></div>
+            <div class="decision-choice">逻辑删除</div>
+            <div class="decision-reason">投放计划与投放记录均采用逻辑删除（deleted = 1），保留审计轨迹用于合规与问题追溯。</div>
+          </div>
+          <div class="decision-card clr-orange">
+            <div class="decision-head"><div class="decision-num">4</div><h3 class="decision-title">问卷提交由谁触发完成回调？</h3></div>
+            <div class="decision-choice">H5 JSBridge → App → 服务端</div>
+            <div class="decision-reason">CSI H5 内部 Submit 调用 npsSurveyCompleted JSBridge 方法，App 接收后调服务端完成接口上报状态。</div>
+          </div>
+        </div>
+      </div>
+      <!-- 错误码 -->
+      <div class="sv-pane clr-teal" id="design-errors">
+        <h4 style="margin-bottom:0.75rem;color:var(--fg-muted);">NPS 业务错误码（41xx）</h4>
+        <div class="table-wrap" style="margin-bottom:1rem;">
+          <table>
+            <thead><tr><th style="width:5rem;">错误码</th><th style="width:16rem;">错误信息</th><th>触发场景</th></tr></thead>
+            <tbody>
+              <tr><td><code>4101</code></td><td>URL allocation percentages must sum to 100</td><td>保存计划时 URL 比例之和不等于 100%</td></tr>
+              <tr><td><code>4102</code></td><td>Plan code already exists</td><td>新建/透传时 campaign_code 已存在</td></tr>
+              <tr><td><code>4103</code></td><td>Import file format error</td><td>投放数据导入文件格式错误</td></tr>
+              <tr><td><code>4104</code></td><td>Survey already completed</td><td>完成接口被重复调用（幂等返回成功）</td></tr>
+              <tr><td><code>4105</code></td><td>Delivery record not found</td><td>投放记录不存在</td></tr>
+              <tr><td><code>4106</code></td><td>Plan not found</td><td>操作计划时记录不存在</td></tr>
+              <tr><td><code>4107</code></td><td>Push not allowed</td><td>尝试推送已推送记录</td></tr>
+              <tr><td><code>9003</code></td><td>External service timeout</td><td>CSI 推送接口超时 → PUSH_FAILED</td></tr>
+              <tr><td><code>9999</code></td><td>System internal error</td><td>未知系统异常</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4 style="margin-bottom:0.5rem;color:var(--fg-muted);">错误响应格式</h4>
+        <div class="card clr-teal">
+          <pre style="font-family:ui-monospace;font-size:0.82rem;margin:0;overflow-x:auto;">{ "code": 4101, "message": "...", "data": { "currentSum": 110 }, "traceId": "trace-campaign-xxx", "timestamp": 1751328000000 }</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §9 AI GUIDE — AI 开发指南                                       -->
+<!-- ============================================================ -->
+<section id="ai-guide">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §9 AI Coding Guide</div>
+      <h2 class="section-title">AI 开发指南</h2>
+      <p class="section-subtitle">基于 Skill 的 Spec Coding 开发流程（Kiro Skills + Claude Code Skills）</p>
+    </div>
+  </div>
+
+  <!-- Spec Coding 简介 -->
+  <div class="grid grid-2" style="margin-bottom:1.5rem;">
+    <div class="card clr-indigo">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3 class="card-title">什么是 Spec Coding</h3>
+      </div>
+      <div class="card-desc">
+        <strong>以 Spec 文档为单一真相源（SSOT）的 AI 辅助开发模式</strong>。BR/EX/AC 编号体系形成"需求 → 测试 → 任务 → API"全链路追溯，AI 严格按文档生成代码并强制输出自检清单，确保实现可验证、可追溯。
+      </div>
+    </div>
+    <div class="card clr-purple">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg></div>
+        <h3 class="card-title">人在回路（Human-in-the-Loop）</h3>
+      </div>
+      <div class="card-desc">
+        每个 Skill 遵循"先确认方案，再生成代码"原则。AI 输出实施方案表格供开发者确认，避免方向错误导致 Token 浪费与返工。
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill 列表 -->
+  <h3 style="font-size:1.05rem;font-weight:600;margin:1.5rem 0 1rem;">📚 角色 Skill</h3>
+  <div class="grid grid-3">
+    <div class="skill-card clr-blue">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">📱</div>
+        <div class="skill-card-name">flutter-dev</div>
+      </div>
+      <div class="skill-card-desc">Flutter 开发者。输入任务编号或模块 ID 自动加载 PRD 上下文并生成 Flutter 原生页面代码。</div>
+      <div class="skill-card-trigger">#flutter-dev 为模块 05.04 生成问卷入口</div>
+    </div>
+    <div class="skill-card clr-purple">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">🖥</div>
+        <div class="skill-card-name">admin-dev</div>
+      </div>
+      <div class="skill-card-desc">运营管理后台开发者。输入任务编号自动生成 Vue 3 + Ant Design Vue 代码。</div>
+      <div class="skill-card-trigger">#admin-dev 生成投放计划管理列表页</div>
+    </div>
+    <div class="skill-card clr-orange">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">☕</div>
+        <div class="skill-card-name">backend-dev</div>
+      </div>
+      <div class="skill-card-desc">Java 后端开发者。输入任务编号自动生成 Spring Boot Controller + Service + DTO 代码。</div>
+      <div class="skill-card-trigger">#backend-dev 实现定时下发任务逻辑</div>
+    </div>
+    <div class="skill-card clr-red">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">🗄</div>
+        <div class="skill-card-name">db-design</div>
+      </div>
+      <div class="skill-card-desc">数据库设计者。输入任务编号自动生成 MySQL DDL + MyBatis Plus 实体。</div>
+      <div class="skill-card-trigger">#db-design 生成 NPS 投放模块建表语句</div>
+    </div>
+    <div class="skill-card clr-amber">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">📋</div>
+        <div class="skill-card-name">spec-review</div>
+      </div>
+      <div class="skill-card-desc">需求评审 HTML 生成器。基于 spec 文档生成单文件评审 HTML。</div>
+      <div class="skill-card-trigger">/spec-review 生成本次评审 HTML</div>
+    </div>
+    <div class="skill-card clr-indigo">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">📝</div>
+        <div class="skill-card-name">spec-writer</div>
+      </div>
+      <div class="skill-card-desc">SDD Spec 文档专家。基于产品输入生成完整 spec 文档集。</div>
+      <div class="skill-card-trigger">/spec-writer 为 XXX 编写 spec 文档</div>
+    </div>
+    <div class="skill-card clr-green">
+      <div class="skill-card-head">
+        <div class="skill-card-icon">🧪</div>
+        <div class="skill-card-name">test-qa</div>
+      </div>
+      <div class="skill-card-desc">测试工程师。输入任务编号自动生成测试用例和自动化脚本。</div>
+      <div class="skill-card-trigger">#test-qa 生成 NPS 模块测试用例</div>
+    </div>
+  </div>
+
+  <!-- 工作流 -->
+  <h3 style="font-size:1.05rem;font-weight:600;margin:1.75rem 0 1rem;">🔄 人在回路工作流（5 步）</h3>
+  <div>
+    <div class="step-card clr-blue">
+      <div class="step-card-num">1</div>
+      <div class="step-card-content">
+        <div class="step-card-title">阅读需求 → 输出理解确认</div>
+        <div class="step-card-desc">AI 阅读对应模块的 PRD 文档（功能概述 + 业务规则 + 数据对象），输出理解确认表格，标注待确认问题（OQ）。</div>
+      </div>
+    </div>
+    <div class="step-card clr-purple">
+      <div class="step-card-num">2</div>
+      <div class="step-card-content">
+        <div class="step-card-title">交叉验证 → 暴露风险</div>
+        <div class="step-card-desc">AI 交叉验证模块文档与设计文档，检查 BR 与 AC 对应关系、Permission Code 注册情况、实体字段一致性。</div>
+      </div>
+    </div>
+    <div class="step-card clr-orange">
+      <div class="step-card-num">3</div>
+      <div class="step-card-content">
+        <div class="step-card-title">输出方案 → 等待确认</div>
+        <div class="step-card-desc">AI 输出技术实施方案（文件路径、组件结构、关键设计决策），等待开发者确认后再生成代码。</div>
+      </div>
+    </div>
+    <div class="step-card clr-green">
+      <div class="step-card-num">4</div>
+      <div class="step-card-content">
+        <div class="step-card-title">生成代码 → 自检清单</div>
+        <div class="step-card-desc">AI 按 spec 规范生成代码，并强制输出自检清单（BR 覆盖、AC 通过、i18n key 正确、Design Token 一致）。</div>
+      </div>
+    </div>
+    <div class="step-card clr-teal">
+      <div class="step-card-num">5</div>
+      <div class="step-card-content">
+        <div class="step-card-title">Review → 迭代修复</div>
+        <div class="step-card-desc">开发者 review 代码 → 反馈问题 → AI 修复 → 再次 review，直至所有 AC 通过。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 触发方式 -->
+  <h3 style="font-size:1.05rem;font-weight:600;margin:1.75rem 0 1rem;">🎯 触发方式</h3>
+  <div class="grid grid-3">
+    <div class="card clr-blue">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11H7v6h2zm5 0h-2v6h2zm5 0h-2v6h2zM3 7h18v12H3z"/></svg></div>
+        <h3 class="card-title">方式 1 · 按任务编号（推荐）</h3>
+      </div>
+      <div class="skill-card-trigger" style="margin:0.75rem 0;">#flutter-dev 完成任务 QLIST-04</div>
+      <p style="font-size:0.825rem;color:var(--fg-muted);">最完整：自动反查模块、依赖、验收标准</p>
+    </div>
+    <div class="card clr-green">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></div>
+        <h3 class="card-title">方式 2 · 按模块 ID</h3>
+      </div>
+      <div class="skill-card-trigger" style="margin:0.75rem 0;">#flutter-dev 为模块 05.02 生成代码</div>
+      <p style="font-size:0.825rem;color:var(--fg-muted);">需手动指定模块编号，加载对应 PRD</p>
+    </div>
+    <div class="card clr-orange">
+      <div class="card-header">
+        <div class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <h3 class="card-title">方式 3 · 自由描述</h3>
+      </div>
+      <div class="skill-card-trigger" style="margin:0.75rem 0;">#backend-dev 实现敏感词校验 Service</div>
+      <p style="font-size:0.825rem;color:var(--fg-muted);">最灵活，AI 智能识别意图</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §10 AI SUMMARY — AI 评审摘要                                    -->
+<!-- ============================================================ -->
+<section id="aisummary" class="section-alt">
+  <div class="section-header">
+    <div>
+      <div class="section-eyebrow"><span class="section-eyebrow-dot"></span> §10 Review Decision Panel</div>
+      <h2 class="section-title">评审决策面板</h2>
+      <p class="section-subtitle">基于 spec 文档的评审决策面板：已对齐项 / 待澄清风险 / 开放问题 / 决策时间表</p>
+    </div>
+  </div>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#d1fae5;color:#047857;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12l5 5L20 7"/></svg></div>
+        <h3 class="card-title">已对齐项</h3>
+      </div>
+      <ul class="checklist">
+        <li><span class="check-icon success">✓</span><span>模块编号体系（05.01 ~ 05.05）</span></li>
+        <li><span class="check-icon success">✓</span><span>逻辑删除策略（deleted = 1）</span></li>
+        <li><span class="check-icon success">✓</span><span>技术栈方案（Web CMS + Flutter + Spring Boot）</span></li>
+        <li><span class="check-icon success">✓</span><span>问卷 H5 由 CSI 提供，App 仅做 WebView 容器</span></li>
+        <li><span class="check-icon success">✓</span><span>JSBridge 完成回调机制（npsSurveyCompleted）</span></li>
+        <li><span class="check-icon success">✓</span><span>导入/导出字段与列表保持一致</span></li>
+        <li><span class="check-icon success">✓</span><span>Permission Code 已注册到权限设计</span></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:#fef3c7;color:#b45309;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+        <h3 class="card-title">待澄清风险</h3>
+      </div>
+      <ul class="checklist">
+        <li><span class="check-icon warning">!</span><span>CSI/UOP 接口 SLA 建议值待联调前与 UOP 团队最终确认</span></li>
+        <li><span class="check-icon warning">!</span><span>投放数据量 500 万+，初期单表，需关注分表时机和定时任务性能</span></li>
+        <li><span class="check-icon warning">!</span><span>CSI H5 问卷页需确认 JSBridge npsSurveyCompleted 方法</span></li>
+      </ul>
+    </div>
+  </div>
+
+
+</section>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-brand">NPS问卷投放</div>
+    <div class="footer-meta">
+      文档版本 1.0.0 · 生成于 2026-07-09<br/><br/>
+    </div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" aria-label="关闭">×</button>
+  <img id="lightbox-img" src="" alt="" />
+  <div class="lightbox-cap" id="lightbox-cap"></div>
+</div>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false, theme: 'base',
+    themeVariables: {
+      primaryColor: '#eff6ff', primaryTextColor: '#1e3a8a', primaryBorderColor: '#bfdbfe',
+      lineColor: '#94a3b8', secondaryColor: '#faf5ff', tertiaryColor: '#f8fafc',
+      fontFamily: 'ui-sans-serif, system-ui, sans-serif', fontSize: '14px'
+    }
+  });
+  // Render mermaid even inside hidden panes (sv-pane / tab-pane / arch-pane).
+  // Mermaid 10 skips elements with zero layout, so temporarily reveal them.
+  (async () => {
+    const hiddenPanes = document.querySelectorAll('.sv-pane, .tab-pane, .arch-pane');
+    const prev = [];
+    hiddenPanes.forEach(p => { prev.push(p.style.display); p.style.display = 'block'; });
+    try {
+      await mermaid.run({ querySelector: '.mermaid' });
+    } catch (e) { console.warn('mermaid render error', e); }
+    hiddenPanes.forEach((p, i) => { p.style.display = prev[i] || ''; });
+  })();
+</script>
+<script>
+  // Active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.nav-links a');
+  const navObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => navObs.observe(s));
+
+  // Top tabs (only used in §2 flows)
+  document.querySelectorAll('[data-tabs]').forEach(group => {
+    const buttons = group.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        const parent = group.closest('section');
+        parent.querySelectorAll('.tab-btn').forEach(b => {
+          if (b.parentElement === group) b.classList.toggle('active', b === btn);
+        });
+        parent.querySelectorAll(':scope > .tab-pane').forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+  });
+
+  // Side-tabs (splitview)
+  document.querySelectorAll('[data-sv]').forEach(list => {
+    const section = list.closest('section');
+    list.querySelectorAll('.splitview-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = item.dataset.svtarget;
+        list.querySelectorAll('.splitview-item').forEach(i => i.classList.toggle('active', i === item));
+        section.querySelectorAll('.sv-pane').forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+  });
+
+  // Architecture sub-switch
+  document.querySelectorAll('[data-archsub]').forEach(group => {
+    const buttons = group.querySelectorAll('.arch-sub-btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.archtab;
+        group.parentElement.querySelectorAll('.arch-sub-btn').forEach(b => {
+          if (b.parentElement === group) b.classList.toggle('active', b === btn);
+        });
+        group.parentElement.querySelectorAll('.arch-pane').forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+  });
+
+  // Prototype filter
+  const protoGrid = document.querySelector('[data-protogrid]');
+  const protoFilter = document.querySelector('[data-protofilter]');
+  if (protoFilter && protoGrid) {
+    protoFilter.querySelectorAll('.proto-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        protoFilter.querySelectorAll('.proto-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+        const cat = btn.dataset.filter;
+        protoGrid.querySelectorAll('.proto-card').forEach(card => {
+          card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+        });
+      });
+    });
+  }
+
+  // BR list collapse/expand
+  document.querySelectorAll('[data-expand-btn]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const list = btn.previousElementSibling;
+      if (!list || !list.classList.contains('br-list-wrap')) return;
+      const expanded = btn.dataset.expanded === 'true';
+      const items = list.querySelectorAll('li');
+      const initialHidden = parseInt(btn.dataset.hiddenCount || '0');
+      if (!expanded) {
+        items.forEach((li, idx) => { if (idx >= 5) li.classList.remove('hidden'); });
+        btn.dataset.expanded = 'true';
+        btn.textContent = '收起 ↑';
+      } else {
+        items.forEach((li, idx) => { if (idx >= 5) li.classList.add('hidden'); });
+        btn.dataset.expanded = 'false';
+        btn.textContent = `展开剩余 ${initialHidden} 条 ↓`;
+      }
+    });
+    const list = btn.previousElementSibling;
+    if (list && list.classList.contains('br-list-wrap')) {
+      const hiddenCount = list.querySelectorAll('li.hidden').length;
+      btn.dataset.hiddenCount = String(hiddenCount);
+    }
+  });
+
+  // Lightbox
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCap = document.getElementById('lightbox-cap');
+  document.addEventListener('click', e => {
+    const img = e.target.closest('[data-zoomable]');
+    if (img) {
+      lightboxImg.src = img.src;
+      lightboxCap.textContent = img.dataset.cap || img.alt || '';
+      lightbox.classList.add('active');
+      return;
+    }
+    const btn = e.target.closest('[data-protoview]');
+    if (btn) {
+      lightboxImg.src = btn.dataset.protoview;
+      lightboxCap.textContent = btn.dataset.protoname || '';
+      lightbox.classList.add('active');
+      return;
+    }
+  });
+  function closeLightbox() { lightbox.classList.remove('active'); }
+  lightbox.addEventListener('click', e => { if (e.target === lightbox || e.target === lightboxImg) closeLightbox(); });
+  document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+<script
+async
+defer
+src="https://chat.pmbilly.com/chat/api/embed?protocol=https&host=chat.pmbilly.com&token=035b33dd0a9fce4a">
+</script>
+
+
+</body>
+</html>
