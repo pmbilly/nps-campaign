@@ -477,7 +477,7 @@
   <div class="container">
     <span class="hero-meta">
       <span class="pulse"></span>
-      首次评审 · 文档版本 1.0.0 · 2026-07-09
+      首次评审 · 文档版本 1.0.0 · 2026-07-17
     </span>
     <h1>NPS问卷投放<br/><span class="accent">精准投放 · 低打扰 · 数据闭环</span></h1>
     <p class="lead">通过 CSI 系统或运营管理后台制定 投放管理计划，由 GAC APP 服务端按国家、车型、绑车时长精准筛选车主并分配问卷链接，在车控页以低打扰浮标触达用户，收集满意度与推荐意愿数据并回流至 CSI 系统形成闭环。</p>
@@ -499,12 +499,12 @@
         <div class="hero-stat-sub">05.01 投放计划管理 ~ 05.05 问卷页</div>
       </div>
       <div class="hero-stat clr-orange">
-        <div class="hero-stat-value">38</div>
+        <div class="hero-stat-value">39</div>
         <div class="hero-stat-label">业务规则 BR</div>
-        <div class="hero-stat-sub">BR-05.01-01 ~ BR-05.05-07</div>
+        <div class="hero-stat-sub">BR-05.01-01 ~ BR-05.05-08</div>
       </div>
       <div class="hero-stat clr-green">
-        <div class="hero-stat-value">47</div>
+        <div class="hero-stat-value">49</div>
         <div class="hero-stat-label">验收标准 AC</div>
         <div class="hero-stat-sub">覆盖正常 · 异常 · 边界三类</div>
       </div>
@@ -530,7 +530,7 @@
       <h2 class="section-title">产品概述</h2>
       <p class="section-subtitle">投放管理系统核心价值与关键概念</p>
     </div>
-    <span class="section-side-meta">5 模块 · 38 BR · 47 AC</span>
+    <span class="section-side-meta">5 模块 · 39 BR · 49 AC</span>
   </div>
   <div class="grid grid-2">
     <div class="card clr-red">
@@ -853,18 +853,19 @@ sequenceDiagram
             <li><span class="br-code">BR-05.01-02</span><span style="flex:1;">同一投放计划内所有 URL 分配比例之和必须等于 100%；保存/透传更新时须校验，否则拒绝。</span></li>
             <li><span class="br-code">BR-05.01-03</span><span style="flex:1;">计划起止时间仅控制定时下发任务的执行窗口，不影响 App 端入口展示；App 端展示依据每个用户的独立投放时间段。</span></li>
             <li><span class="br-code">BR-05.01-04</span><span style="flex:1;">投放位置、关闭后隐藏时长、每日下发数量、下发条件、显示图标地址等字段由 App 端提供默认值且可修改。</span></li>
-            <li><span class="br-code">BR-05.01-05</span><span style="flex:1;">投放计划支持启用/停用；停用后不再参与新的定时下发，但已生成的投放记录仍按原规则展示。</span></li>
+            <li><span class="br-code">BR-05.01-05</span><span style="flex:1;">投放计划支持启用/停用；停用后不再参与新的定时下发，App 问卷查询接口不再返回该计划投放数据（含已生成记录），App 端不再展示；记录数据保留，重新启用后恢复；已打开问卷页的提交照常接收。</span></li>
             <li class="hidden"><span class="br-code">BR-05.01-06</span><span style="flex:1;">投放计划删除采用逻辑删除（deleted = 1），保留审计轨迹；删除后不再参与下发与查询。</span></li>
             <li class="hidden"><span class="br-code">BR-05.01-07</span><span style="flex:1;">入口图标图片非必填，上传时限制格式为 jpg/png/webp，单张大小 ≤ 3MB。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.01-08</span><span style="flex:1;">CSI 透传未传入 campaignCode 且按 country + model 未匹配到已有计划时，系统自动生成投放编码后新建计划；campaignName 默认 "Promotion Campaign"。</span></li>
           </ul>
-          <button class="br-expand-btn" data-expand-btn>展开剩余 2 条 ↓</button>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 3 条 ↓</button>
         </div>
         <div class="modblock" style="margin-top:1rem;">
           <h4>✅ 验收标准（AC）</h4>
           <ul class="ac-list">
             <li><span class="ac-code">AC-05.01-01</span><span style="flex:1;"><strong>Given</strong> CSI 系统发起有效的投放计划透传请求 <strong>When</strong> App 服务端接收并校验通过 <strong>Then</strong> 投放计划被保存或更新。</span></li>
             <li><span class="ac-code">AC-05.01-02</span><span style="flex:1;"><strong>Given</strong> 运营人员在管理后台新建投放计划，URL 比例之和为 100% <strong>When</strong> 点击保存 <strong>Then</strong> 计划保存成功并进入列表。</span></li>
-            <li><span class="ac-code">AC-05.01-05</span><span style="flex:1;"><strong>Given</strong> 计划处于启用状态 <strong>When</strong> 运营人员点击停用 <strong>Then</strong> 计划状态变为停用，次日任务不再下发。</span></li>
+            <li><span class="ac-code">AC-05.01-05</span><span style="flex:1;"><strong>Given</strong> 计划处于启用状态且已生成用户投放记录 <strong>When</strong> 运营人员点击停用 <strong>Then</strong> 计划状态变为停用，次日任务不再下发，且 App 问卷查询接口不再返回、App 端不再展示该投放入口。</span></li>
             <li><span class="ac-code">AC-05.01-06</span><span style="flex:1;"><strong>Given</strong> URL 比例之和不等于 100% <strong>When</strong> 点击保存 <strong>Then</strong> 系统拒绝并提示"分配比例之和必须等于 100%"。</span></li>
           </ul>
         </div>
@@ -1044,7 +1045,7 @@ sequenceDiagram
           <h4>📐 关键业务规则</h4>
           <ul class="br-list br-list-wrap" data-collapse>
             <li><span class="br-code">BR-05.04-01</span><span style="flex:1;">客户端在获取车辆信息完成后调用问卷查询接口，可返回多条不同位置的投放记录。</span></li>
-            <li><span class="br-code">BR-05.04-02</span><span style="flex:1;">问卷数据返回规则：计划启用、当前用户存在已下发且未完成的问卷、当前时间在用户投放时间段内。</span></li>
+            <li><span class="br-code">BR-05.04-02</span><span style="flex:1;">问卷数据返回规则需同时满足：计划处于启用状态、当前用户存在已下发且未完成的问卷、当前时间在用户投放时间段内；计划停用后其投放记录（含已下发）不再返回，App 端不再展示。</span></li>
             <li><span class="br-code">BR-05.04-03</span><span style="flex:1;">问卷入口显示规则：服务端返回了问卷数据、本地 coolOff 时间已到期、该位置未处于永久关闭状态。</span></li>
             <li><span class="br-code">BR-05.04-04</span><span style="flex:1;">客户端以展示位置为维度，在本地持久化存储各位置的下次可显示时间戳（APP_AD_COOL_OFF_MAP）。</span></li>
             <li><span class="br-code">BR-05.04-05</span><span style="flex:1;">用户关闭浮标时根据接口返回的 cool_off 计算下次可显示时间；cool_off = 0 表示永久不再显示。</span></li>
@@ -1060,6 +1061,7 @@ sequenceDiagram
             <li><span class="ac-code">AC-05.04-03</span><span style="flex:1;"><strong>Given</strong> 客户端已获得问卷数据且 coolOff 已到期 <strong>When</strong> 进入车控页 <strong>Then</strong> 在指定位置展示 NPS 浮标。</span></li>
             <li><span class="ac-code">AC-05.04-04</span><span style="flex:1;"><strong>Given</strong> 用户关闭浮标 <strong>When</strong> 客户端处理关闭事件 <strong>Then</strong> 按 cool_off 计算并持久化下次可显示时间。</span></li>
             <li><span class="ac-code">AC-05.04-08</span><span style="flex:1;"><strong>Given</strong> cool_off 配置为关闭后不再显示 <strong>When</strong> 用户关闭浮标 <strong>Then</strong> 该位置后续不再展示该计划入口。</span></li>
+            <li><span class="ac-code">AC-05.04-10</span><span style="flex:1;"><strong>Given</strong> 投放计划已被停用，且用户存在该计划已下发未完成的问卷 <strong>When</strong> 调用问卷查询接口 <strong>Then</strong> 返回数据不包含该计划，App 端不展示其入口浮标。</span></li>
           </ul>
         </div>
         <div style="margin-top:1rem;">
@@ -1111,8 +1113,10 @@ sequenceDiagram
             <li><span class="br-code">BR-05.05-04</span><span style="flex:1;">完成接口需幂等处理；已完成的记录再次调用时返回成功，不重复更新。</span></li>
             <li><span class="br-code">BR-05.05-05</span><span style="flex:1;">WebView 加载 H5 失败时显示重试页面，用户可点击重试或返回车控页。</span></li>
             <li class="hidden"><span class="br-code">BR-05.05-06</span><span style="flex:1;">H5 与 App 的通信须兼容 WebView 安全区、返回手势及主题同步规范。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.05-07</span><span style="flex:1;">完成接口失败时本地保存 pending 记录，每次 App 启动遍历重试；创建超 1 小时最后一次重试仍失败则失效不再重试；4105 直接失效，4104 视为成功。</span></li>
+            <li class="hidden"><span class="br-code">BR-05.05-08</span><span style="flex:1;">投放计划停用不影响进行中的问卷提交：停用前已打开问卷页的，完成上报接口照常接收并按原流程处理。</span></li>
           </ul>
-          <button class="br-expand-btn" data-expand-btn>展开剩余 1 条 ↓</button>
+          <button class="br-expand-btn" data-expand-btn>展开剩余 3 条 ↓</button>
         </div>
         <div class="modblock" style="margin-top:1rem;">
           <h4>✅ 验收标准（AC）</h4>
@@ -1121,6 +1125,7 @@ sequenceDiagram
             <li><span class="ac-code">AC-05.05-03</span><span style="flex:1;"><strong>Given</strong> App 收到 JSBridge 完成回调 <strong>When</strong> 调用完成接口成功 <strong>Then</strong> 服务端将投放记录标记为已完成。</span></li>
             <li><span class="ac-code">AC-05.05-04</span><span style="flex:1;"><strong>Given</strong> 用户已完成问卷 <strong>When</strong> H5 再次触发完成回调 <strong>Then</strong> 服务端幂等返回成功。</span></li>
             <li><span class="ac-code">AC-05.05-05</span><span style="flex:1;"><strong>Given</strong> WebView 加载 H5 失败 <strong>When</strong> 页面显示重试页 <strong>Then</strong> 用户可点击重试或返回车控页。</span></li>
+            <li><span class="ac-code">AC-05.05-11</span><span style="flex:1;"><strong>Given</strong> 用户已打开问卷页，随后投放计划被停用 <strong>When</strong> 用户提交问卷且 App 后台调用完成接口 <strong>Then</strong> 服务端照常接收并将投放记录标记为已完成。</span></li>
           </ul>
         </div>
         <div style="margin-top:1rem;">
@@ -1836,6 +1841,7 @@ stateDiagram-v2
         <li><span class="check-icon success">✓</span><span>JSBridge 完成回调机制（npsSurveyCompleted）</span></li>
         <li><span class="check-icon success">✓</span><span>导入/导出字段与列表保持一致</span></li>
         <li><span class="check-icon success">✓</span><span>Permission Code 已注册到权限设计</span></li>
+        <li><span class="check-icon success">✓</span><span>投放计划停用语义：不下发 + App 不返回/不展示，记录保留、进行中提交照常接收</span></li>
       </ul>
     </div>
     <div class="card">
@@ -1860,7 +1866,7 @@ stateDiagram-v2
   <div class="container">
     <div class="footer-brand">NPS问卷投放</div>
     <div class="footer-meta">
-      文档版本 1.0.0 · 生成于 2026-07-09<br/><br/>
+      文档版本 1.0.0 · 生成于 2026-07-09 · 更新于 2026-07-17<br/><br/>
     </div>
   </div>
 </footer>
