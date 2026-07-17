@@ -241,9 +241,9 @@ permission_codes:
 | 指标 | 数值 |
 |------|------|
 | 功能模块数 | 5 个 |
-| 业务规则总数 | 38 条 |
+| 业务规则总数 | 39 条 |
 | 异常处理场景 | 27 条 |
-| 验收标准总数 | 47 条 |
+| 验收标准总数 | 49 条 |
 | Permission Code | 10 条 |
 | 数据实体 | 3 个（Campaign, CampaignUrl, CampaignDelivery） |
 | 开发任务数 | 5 个主任务 + 8 个基础任务 |
@@ -265,12 +265,12 @@ permission_codes:
 
 | 检查项 | 状态 |
 |--------|------|
-| BR 追溯一致性 | ✅ 38 defined / 38 referenced |
+| BR 追溯一致性 | ✅ 39 defined / 39 referenced |
 | 编号唯一性 | ✅ 无重复 |
 | 文档引用路径 | ✅ 无死链 |
 | Markdown 表格格式 | ✅ 全部合规 |
 | 统计数字 | ✅ 与实际一致 |
-| AC 任务覆盖 | ✅ 47 AC / 33 linked / 5 tasks |
+| AC 任务覆盖 | ✅ 49 AC / 34 linked / 5 tasks |
 
 > 运行 `bash scripts/check-all.sh` 可重新验证。
 
